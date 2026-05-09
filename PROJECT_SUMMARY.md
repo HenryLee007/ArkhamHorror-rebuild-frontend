@@ -37,7 +37,8 @@ ArkhamHorror-rebuild-frontend/
 ├── frontend/                    # Vue3 前端
 │   ├── public/
 │   │   ├── cards_*.json         # ⚠️ 13 种语言卡牌定义，由脚本生成，勿手改
-│   │   └── img/                 # 图片资产（可选本地）
+│   │   └── img/                 # 图片资产（bind mount 到 web 容器 /opt/arkham/src/frontend/dist/img）
+│   ├── vite.config.js        # ⚠️ build.copyPublicDir=false，避免与 fetch-images 并发冲突
 │   └── src/
 │       ├── main.ts              # Vue 启动入口
 │       ├── App.vue              # 根组件 + AVIF 检测
@@ -90,6 +91,11 @@ ArkhamHorror-rebuild-frontend/
 │   ├── deploy/  revert/  verify/
 │   ├── sqitch.plan              # 已有 19 条迁移
 │   └── sqitch.conf
+├── scripts/                     # 运维 / 资产脚本
+│   ├── fetch-assets.sh          # 从 S3/CDN 拉取图片（fetch-images 容器使用）
+│   ├── deploy-frontend.ps1      # ★ Windows：本地 build 后热推到 web 容器（无需重建镜像）
+│   ├── import-images.ps1        # ★ Windows：从 NAS/本地目录导入 img 包（跳过 CDN 下载）
+│   └── ...
 ├── docker-compose.yml           # db:5433 + web:3000 + fetch-images profile
 ├── Dockerfile                   # 多阶段：Node 构建前端 → Ubuntu+GHC 构建后端
 ├── Makefile                     # 部署/镜像/同步常用命令
@@ -136,7 +142,7 @@ docker compose up -d               # 启 db(5433) + web(3000)
 ### 前端开发（热更新）
 ```bash
 cd frontend
-npm ci
+npm ci                             # 国内卡可换：npm install --registry=https://registry.npmmirror.com
 npm run dev                        # vite 8080，代理 /api /health → 127.0.0.1:3002
 ```
 Vite 脚本（`frontend/package.json`）：`dev`、`serve`、`build`、`tc`（vue-tsc 类型检查）、`digest`。
@@ -165,6 +171,24 @@ stack test --flag arkham-horror-backend:library-only --flag arkham-horror-backen
 - `make db-unstick` / `make db-unstick-kill`：处理 Postgres idle-in-transaction。
 - `make count`：统计代码行数。
 
+### 本地 Docker 场景常用脚本（Windows PowerShell，★ 重点）
+- **前端热更新**（改完源码秒级上线，无需重建镜像）：
+  ```powershell
+  pwsh .\scripts\deploy-frontend.ps1
+  pwsh .\scripts\deploy-frontend.ps1 -Install   # 首次或 package.json 变动时加
+  ```
+  内部流程：`npm install` → `npm run build` → 清理容器旧 `dist/assets`+`index.html` → `docker cp` 新产物。
+- **离线导入图片包**（跳过 2.9G CDN 下载）：
+  ```powershell
+  pwsh .\scripts\import-images.ps1 -SourcePath D:\backup\arkham-horror-images
+  pwsh .\scripts\import-images.ps1 -SourcePath '\\NAS\share\arkham\img'
+  ```
+  内部流程：robocopy `/MT:16 /XF *.tmp` 同步到 `frontend/public/img` → `docker compose restart web` → `/health` 自检。
+- **反向备份图片包给其它机器**：
+  ```powershell
+  robocopy .\frontend\public\img C:\Users\$env:USERNAME\Desktop\arkham-horror-images\img /E /MT:16 /XF *.tmp /NFL /NDL
+  ```
+
 ---
 
 ## 6. 常见问题 → 代码位置映射（★核心）
@@ -181,7 +205,8 @@ stack test --flag arkham-horror-backend:library-only --flag arkham-horror-backen
 | **WebSocket 断连 / 广播丢失** | 浏览器 DevTools Network WS | `Foundation.hs` 中 `Room`、`Subscriber`、`appGameRooms`、`roomQueueBound`、`gameStream`；Redis `REDIS_CONN` 环境变量 |
 | **接口 4xx/5xx 报错** | axios 调用点（`arkham/api.ts`、`stores/user.ts`） | 后端对应 `Api/Handler/...`；全局异常 → Bugsnag 中间件 `Application.hs`；查容器日志 |
 | **数据库写入失败 / 约束冲突** | 对应 Handler 的 `runDB`/`insert`/`update` 调用 | `Entity/` 实体定义、`migrations/deploy/*.sql`；Postgres 日志；`make db-unstick` |
-| **图片加载失败 / 404** | [App.vue](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/App.vue)（AVIF 检查）、[arkham/helpers.ts](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/arkham/helpers.ts) (`checkImageExists`)、`stores/site_settings.ts`（ASSET_HOST） | `web-entrypoint.sh` 的 ASSET_HOST 自动探测；`image-manifest.json`；`scripts/fetch-assets.sh` |
+| **图片加载失败 / 404** | [App.vue](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/App.vue)（AVIF 检查）、[arkham/helpers.ts](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/arkham/helpers.ts) (`checkImageExists`)、`stores/site_settings.ts`（ASSET_HOST） | `web-entrypoint.sh` 的 ASSET_HOST 自动探测；`image-manifest.json`；`scripts/fetch-assets.sh`；宿主机 `frontend/public/img` ↔ 容器 `/opt/arkham/src/frontend/dist/img` 为 **bind mount**；离线恢复 → `scripts/import-images.ps1` |
+| **本地改完前端想立刻生效**（Windows Docker） | `scripts/deploy-frontend.ps1` | [vite.config.js](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/vite.config.js) 的 `build.copyPublicDir: false`；容器名 `arkhamhorror-rebuild-frontend-web-1` |
 | **管理后台 / 房间监控** | `views/Admin.vue`、`views/Rooms.vue`、`components/admin/` | `Api/Handler/Arkham/Admin/Metrics.hs`、路由中的 `/api/v1/admin/*` |
 | **多语言文案缺失** | `frontend/src/locales/messages.ts` 及各语言目录；`arkham/i18n.ts` | 卡牌翻译在 `cards_<lang>.json` |
 | **规则/战役相关 bug** | `Arkham/Scenarios/<剧本名>.hs`、`Arkham/Campaigns/<战役>.hs` | `Arkham/Game.hs`、`Arkham/Message.hs`（⚠️ 高风险） |
@@ -250,6 +275,7 @@ arkham-api (Yesod Warp)
 6. **锁文件**：`backend/stack.yaml.lock`、`backend/cabal.project.local`、`flake.lock`、`frontend/package-lock.json`。
 7. **Dockerfile、`prod.nginxconf`、`web-entrypoint.sh`、`start.sh`** — 生产部署链路，改动需同步验证 Docker Compose、Kamal、K8s。
 8. **`terraform/` · `config/deploy.yml` · `infra/`** — 基础设施代码，改动有费用/可用性风险。
+9. **`frontend/vite.config.js` 中 `build.copyPublicDir: false`** — 2.6G 图片由 bind mount 接管，开启 copy 会在 `vite build` 期间试图拷贝 `public/img`，与 fetch-images 并发下载的 `.tmp` 冲突，导致 build 崩溃或产物爆胀到 2G+。
 
 ### 安全可改（普通开发对象）
 - `frontend/src/views/` · `frontend/src/components/` · `frontend/src/arkham/components/`（UI）

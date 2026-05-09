@@ -75,6 +75,11 @@
   - `pwsh .\scripts\deploy-frontend.ps1`（改完源码快速上线，无需重启容器）
   - 首次或依赖变动加 `-Install`
   - 脚本内部已处理：检查容器、`npm install`（淘宝源）、`npm run build`、清旧产物、`docker cp` 覆盖
+- **从外部图片包导入（跳过 CDN 下载）**：用户提供了 NAS / 移动硬盘 / 本地路径的 `img/` 目录时：
+  - `pwsh .\scripts\import-images.ps1 -SourcePath <路径>`
+  - 支持 UNC 路径（`\\NAS\share\...`）、`-DryRun`、`-SkipRestart`
+  - 脚本内部已处理：路径校验、`robocopy` 同步（排除 `*.tmp`）、自动重启 web、`/health` 自检
+  - 请不要用 `Copy-Item` 或手写 `docker cp` 替代（两万小文件会极慢）
 
 ### 后端
 - 编译：`cd backend/arkham-api; stack build --flag arkham-api:library-only --flag arkham-api:dev`

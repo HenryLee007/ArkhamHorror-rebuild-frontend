@@ -130,6 +130,56 @@ docker compose --profile fetch-images run --rm fetch-images all
 Images are stored in `frontend/public/img/` and mounted into the container.
 After fetching, run `docker compose restart web` to pick them up.
 
+#### 从外部图片包导入（无需下载 2.9GB）
+
+如果你已经从别处（NAS / 朋友 / 移动硬盘 / 备份）拿到了一份完整的 `img/` 图片目录，可以直接导入，跳过 CDN 或 S3 下载。
+
+预期目录结构（传入的路径可以是 `img` 本层，也可以是包含 `img` 的父目录）：
+
+```
+<source>/img/
+    arkham/
+        en/cards/01001.avif
+        zh/cards/01001.avif
+        investigators/
+        tokens/
+        ...
+    icons/
+    ...
+```
+
+在仓库根目录执行（Windows PowerShell）：
+
+```powershell
+# 从本地目录导入
+pwsh .\scripts\import-images.ps1 -SourcePath D:\backup\arkham-horror-images
+
+# 从 NAS SMB 共享导入
+pwsh .\scripts\import-images.ps1 -SourcePath '\\NAS\share\arkham\img'
+
+# 先预览不实际写入
+pwsh .\scripts\import-images.ps1 -SourcePath D:\backup\arkham-horror-images -DryRun
+
+# 仅复制不重启容器
+pwsh .\scripts\import-images.ps1 -SourcePath D:\backup\arkham-horror-images -SkipRestart
+```
+
+脚本动作：
+1. 校验源目录含 `arkham/` `icons/` 子目录
+2. `robocopy` 多线程同步到 [frontend/public/img](frontend/public/img)，自动排除 `*.tmp`
+3. 识别容器后 `docker compose restart web` 重启
+4. `GET /health` 快速自检
+
+备份出一份图片包供各处导入（无需反复下载）：
+
+```powershell
+# 将 frontend/public/img 全量复制到桌面 arkham-horror-images\img，跳过 .tmp
+robocopy .\frontend\public\img C:\Users\$env:USERNAME\Desktop\arkham-horror-images\img `
+    /E /MT:16 /XF *.tmp /R:1 /W:1 /NFL /NDL
+```
+
+得到的 `arkham-horror-images\img` 整个目录即可直接上传 NAS / 压缩打包 / 复制给别人，对方用上面的 `import-images.ps1` 即可一键导入。
+
 To switch back to CDN at any time, add this to the `web` service environment in `docker-compose.yml`:
 
 ```yaml
