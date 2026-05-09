@@ -64,7 +64,7 @@ try {
 }
 
 Write-Step "Clearing old container assets in $DistRoot"
-docker exec -u 0 $ContainerName sh -lc "rm -rf $DistRoot/assets; rm -f $DistRoot/index.html $DistRoot/cards.json $DistRoot/cards_*.json"
+docker exec -u 0 $ContainerName sh -lc "rm -rf $DistRoot/assets $DistRoot/fonts; rm -f $DistRoot/index.html $DistRoot/cards.json $DistRoot/cards_*.json"
 if ($LASTEXITCODE -ne 0) { throw 'Failed to clear old container frontend assets' }
 
 Write-Step 'Copying index.html'
@@ -74,6 +74,14 @@ if ($LASTEXITCODE -ne 0) { throw 'docker cp index.html failed' }
 Write-Step 'Copying assets/'
 docker cp (Join-Path $distDir 'assets') "${ContainerName}:$DistRoot/assets"
 if ($LASTEXITCODE -ne 0) { throw 'docker cp assets failed' }
+
+Write-Step 'Copying fonts/'
+$fontsDir = Join-Path $publicDir 'fonts'
+if (-not (Test-Path -LiteralPath $fontsDir)) {
+    throw "Missing fonts directory: $fontsDir"
+}
+docker cp $fontsDir "${ContainerName}:$DistRoot/fonts"
+if ($LASTEXITCODE -ne 0) { throw 'docker cp fonts failed' }
 
 Write-Step 'Copying card data JSON'
 foreach ($name in @('cards.json', 'cards_en.json', 'cards_zh.json')) {

@@ -14,6 +14,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 COPY ./frontend /opt/arkham/src/frontend
 ENV VITE_ASSET_HOST=${ASSET_HOST}
 RUN npm run build && \
+    cp -R public/fonts dist/ && \
     cp public/cards.json public/cards_en.json public/cards_zh.json dist/
 
 FROM ubuntu:22.04 AS base
