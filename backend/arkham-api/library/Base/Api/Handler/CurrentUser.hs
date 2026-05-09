@@ -7,7 +7,7 @@ import Import
 
 data CurrentUser = CurrentUser
   { username :: Text
-  , email :: Text
+  , email :: Maybe Text
   , beta :: Bool
   , admin :: Bool
   }

@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import api from '@/api';
 import {
   Credentials,
-  Registration,
   Authentication,
   User,
 } from '@/types';
@@ -24,11 +23,6 @@ export const useUserStore = defineStore("user", () => {
     setCurrentUser()
   }
 
-  async function register(registration: Registration) {
-    const authentication = await api.post<Authentication>('register', registration)
-    token.value = authentication.data.token
-    setCurrentUser()
-  }
 
   function logout() {
     localStorage.removeItem('arkham-token')
@@ -69,5 +63,5 @@ export const useUserStore = defineStore("user", () => {
     token.value = null
   }
 
-  return { token, currentUser, isAdmin, loadUserFromStorage, authenticate, register, logout, deleteAccount, setCurrentUser }
+  return { token, currentUser, isAdmin, loadUserFromStorage, authenticate, logout, deleteAccount, setCurrentUser }
 })

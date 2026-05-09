@@ -26,11 +26,11 @@ instance ToJSON Registration where
 instance FromJSON Registration where
   parseJSON = genericParseJSON $ aesonOptions $ Just "registration"
 
-data Authentication = Authentication
-  { authenticationEmail :: Text
-  , authenticationPassword :: Text
+data AuthenticationRequest = AuthenticationRequest
+  { authUsername :: Text
+  , authPassword :: Maybe Text
   }
   deriving stock (Generic)
 
-instance FromJSON Authentication where
-  parseJSON = genericParseJSON $ aesonOptions $ Just "authentication"
+instance FromJSON AuthenticationRequest where
+  parseJSON = genericParseJSON $ aesonOptions $ Just "auth"

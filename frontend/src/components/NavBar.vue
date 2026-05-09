@@ -45,7 +45,6 @@ async function logout() {
         </template>
         <template v-else>
           <router-link to="/sign-in">{{$t('logIn')}}</router-link>
-          <router-link to="/sign-up">{{$t('register')}}</router-link>
         </template>
       </div>
     </OnClickOutside>

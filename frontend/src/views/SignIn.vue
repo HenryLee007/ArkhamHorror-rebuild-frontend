@@ -2,7 +2,7 @@
 import { useUserStore } from '@/stores/user'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { ref, reactive, onUnmounted } from 'vue'
-import { Credentials } from '../types'
+import type { Credentials } from '../types'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -10,7 +10,7 @@ const store = useUserStore()
 const route = useRoute()
 const router = useRouter()
 const credentials = reactive<Credentials>({
-  email: '',
+  username: '',
   password: '',
 })
 const signInError = ref<string|null>(null)
@@ -42,7 +42,7 @@ async function authenticate() {
       router.push({ path: '/' })
     }
   } catch {
-    signInError.value = t("invalidEmailOrPassword")
+    signInError.value = t("invalidCredentials")
   }
 }
 
@@ -62,24 +62,22 @@ onBeforeRouteLeave(() => {
     <section>
       <div>
         <input
-          v-model="credentials.email"
-          type="email"
-          :placeholder="$t('email')"
+          v-model="credentials.username"
+          type="text"
+          :placeholder="$t('username')"
+          required
         />
       </div>
       <div>
         <input
           v-model="credentials.password"
           type="password"
-          :placeholder="$t('password')"
+          :placeholder="$t('passwordOptional')"
         />
       </div>
       <div>
         <button>{{$t('logIn')}}</button>
       </div>
-    </section>
-    <section>
-      <router-link to="/password-reset">{{$t('forgotPassword')}}</router-link>
     </section>
   </form>
   <div v-else class="service-down">

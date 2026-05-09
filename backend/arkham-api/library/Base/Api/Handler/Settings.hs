@@ -14,7 +14,7 @@ betaSetting (UserSettings b) = b
 
 data CurrentUser = CurrentUser
   { username :: Text
-  , email :: Text
+  , email :: Maybe Text
   , beta :: Bool
   }
   deriving stock Generic

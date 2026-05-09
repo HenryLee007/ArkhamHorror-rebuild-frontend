@@ -18,6 +18,8 @@
   "finishedGames": "Finished Games",
   "forgotPassword": "Forgot Password",
   "invalidEmailOrPassword": "Invalid email or password",
+  "invalidCredentials": "Invalid username or password",
+  "passwordOptional": "Password (admin only)",
   "language": "Language",
   "logIn": "Log in",
   "newGame": "New Game",

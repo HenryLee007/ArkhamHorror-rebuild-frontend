@@ -52,6 +52,10 @@
         / ApiV1AdminRoomsR GET
         /#ArkhamGameId ApiV1AdminRoomP:
           / ApiV1AdminRoomR DELETE
+      /users ApiV1AdminUsersP:
+        / ApiV1AdminUsersR GET POST
+        /#UserId ApiV1AdminUserP:
+          / ApiV1AdminUserR DELETE
       /games ApiV1AdminGamesP:
         / ApiV1AdminGamesR GET
         !/find/#ArkhamPlayerId ApiV1AdminFindGameR GET

@@ -19,6 +19,8 @@
   "forgotPassword": "忘记密码",
   "home": "主页",
   "invalidEmailOrPassword": "邮箱或密码错误",
+  "invalidCredentials": "用户名或密码错误",
+  "passwordOptional": "密码（仅管理员需要）",
   "language": "语言",
   "logIn": "登录",
   "newGame": "新游戏",

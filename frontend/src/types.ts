@@ -1,8 +1,8 @@
 export interface User {
   username: string;
-  email: string;
+  email?: string;
   beta: boolean;
-  admi: boolean;
+  admin: boolean;
 }
 
 export interface Authentication {
@@ -10,12 +10,6 @@ export interface Authentication {
 }
 
 export interface Credentials {
-  email: string;
-  password: string;
-}
-
-export interface Registration {
   username: string;
-  email: string;
-  password: string;
+  password?: string;
 }

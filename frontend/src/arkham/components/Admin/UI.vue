@@ -26,7 +26,7 @@ const toggleSidebar = () => (sidebarOpen.value = !sidebarOpen.value)
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v3H4V5zm0 6h10v3H4v-3zm0 6h7v3H4v-3z" fill="currentColor"/></svg>
           Rooms
         </a>
-        <a class="nav-link" href="#">
+        <a class="nav-link" :class="{ active: selected == 'users' }" href="#/admin/users">
           <!-- users icon -->
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V20h14v-3.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.98 1.97 3.45V20h6v-3.5c0-2.33-4.67-3.5-7-3.5z" fill="currentColor"/></svg>
           Users

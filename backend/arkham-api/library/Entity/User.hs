@@ -13,11 +13,10 @@ mkEntity $(discoverEntities)
   [persistLowerCase|
 User json sql=users
     username Text
-    email Text
-    passwordDigest Text
+    email Text Maybe
+    passwordDigest Text Maybe
     beta Bool
     admin Bool default=False
     UniqueUsername username
-    UniqueEmail email
     deriving Show
 |]
