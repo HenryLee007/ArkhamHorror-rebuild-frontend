@@ -203,6 +203,23 @@
   "fromDeck": "From Deck",
   "fromHand": "From Hand",
   "fromDiscard": "From Discard",
+  "logout": "Logout",
+  "dismiss": "Dismiss",
+  "noActiveGames": "No active games.",
+  "loadGame": "Load Game",
+  "loading": "Loading...",
+  "rooms": "Rooms",
+  "browserNotSupported": {
+    "title": "Please update your browser",
+    "message": "Your browser does not support AVIF images. Please update your browser or switch to a different one."
+  },
+  "about": {
+    "copyright": {
+      "title": "Copyright Disclaimer",
+      "text1": "The information presented in this app about Arkham Horror: The Card Game™, both textual and graphical, is © Fantasy Flight Games 2024. This app is a fan project and is not produced, endorsed, or supported by, or affiliated with Fantasy Flight Games.",
+      "text2": "All artwork and illustrations are the intellectual property of their respective creators. All Arkham Horror: The Card Game™ images and graphics are copyrighted by Fantasy Flight Games."
+    }
+  },
   "core2": {
     "tooltips": {
       "sewerCulvert": {

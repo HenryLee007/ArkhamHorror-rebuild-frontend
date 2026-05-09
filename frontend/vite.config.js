@@ -8,6 +8,10 @@ export default defineConfig({
   plugins: [
     vue(),
   ],
+  build: {
+    // public/img 由 fetch-images 容器并发下载，避免 vite 拷贝时遇到 .tmp 临时文件 ENOENT
+    copyPublicDir: false,
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

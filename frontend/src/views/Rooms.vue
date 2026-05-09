@@ -20,7 +20,7 @@ const data = computed(() => request.data)
       <button class="hamburger" @click="toggleSidebar" aria-label="Open menu">
         <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 10h18v2H3v-2zm0-5h18v2H3v-2z" fill="currentColor"/></svg>
       </button>
-      <h1>Rooms</h1>
+      <h1>{{$t('rooms')}}</h1>
     </header>
 
     <Room v-for="room in data" :room="room" :key="room.roomArkhamGameId" />

@@ -156,5 +156,22 @@
   "chooseLeadInvestigator": "选择调查员队长",
   "fromDeck": "从牌库中",
   "fromHand": "从手牌中",
-  "fromDiscard": "从弃牌堆中"
+  "fromDiscard": "从弃牌堆中",
+  "logout": "退出登录",
+  "dismiss": "忽略",
+  "noActiveGames": "暂无进行中的游戏。",
+  "loadGame": "加载游戏",
+  "loading": "加载中...",
+  "rooms": "房间",
+  "browserNotSupported": {
+    "title": "请更新您的浏览器",
+    "message": "您的浏览器不支持 AVIF 图片。请更新浏览器或切换到其他浏览器。"
+  },
+  "about": {
+    "copyright": {
+      "title": "版权声明",
+      "text1": "本应用中涉及 Arkham Horror: The Card Game™ 的信息（文字与图像）著作权归 Fantasy Flight Games 所有 © 2024。本应用为粉丝项目，未由 Fantasy Flight Games 制作、认可或支持，亦与其无关联。",
+      "text2": "所有画作与插图均为其各自创作者的知识产权。所有 Arkham Horror: The Card Game™ 的图像与图形均由 Fantasy Flight Games 持有版权。"
+    }
+  }
 }

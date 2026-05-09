@@ -1,8 +1,8 @@
 <template>
   <div v-if="!avifSupported" class="error-message container">
-    <header><h2 class="title">Please update your browser</h2></header>
+    <header><h2 class="title">{{$t('browserNotSupported.title')}}</h2></header>
     <section class="box">
-      <p>Your browser does not support AVIF images. Please update your browser or switch to a different one.</p>
+      <p>{{$t('browserNotSupported.message')}}</p>
     </section>
   </div>
   <template v-else>
@@ -14,7 +14,7 @@
         </transition>
       </router-view>
       <template #fallback>
-        Loading...
+        {{$t('loading')}}
       </template>
     </Suspense>
     <ModalsContainer />

@@ -144,6 +144,47 @@ docker compose pull
 docker compose up -d
 ```
 
+### 前端热更新（改完源码快速上线）
+
+本仓库包含一个 PowerShell 脚本，用于本地构建前端并把产物热推到运行中的 `web` 容器，**无需重启容器、无需重建镜像**。适合改了 `frontend/src` 下的 Vue/i18n/TS 源码后立刻在 http://localhost:3000 看到效果。
+
+前置条件：
+- 已通过 `docker compose up -d` 启动容器（默认容器名 `arkhamhorror-rebuild-frontend-web-1`）
+- 本机已安装 Node.js 20+ 与 npm
+- [vite.config.js](frontend/vite.config.js) 已设置 `build.copyPublicDir: false`（仓库默认即是），避免构建时拷贝 `public/img` 遇到 fetch-images 并发写入的 `.tmp` 临时文件
+
+常规用法（改完代码后每次跑一次即可）：
+
+```powershell
+pwsh .\scripts\deploy-frontend.ps1
+# 或 Windows PowerShell 5.x：
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy-frontend.ps1
+```
+
+首次运行或 `package.json` 变动后（会先跑 `npm install`，使用淘宝镜像加速）：
+
+```powershell
+pwsh .\scripts\deploy-frontend.ps1 -Install
+```
+
+自定义容器名 / 容器内路径 / registry：
+
+```powershell
+pwsh .\scripts\deploy-frontend.ps1 `
+    -ContainerName arkhamhorror-rebuild-frontend-web-1 `
+    -DistRoot /opt/arkham/src/frontend/dist `
+    -Registry https://registry.npmjs.org
+```
+
+脚本动作：
+1. 检查 Docker 与目标容器在运行
+2. `npm install`（仅 `-Install` 或未检测到 `node_modules` 时）
+3. `npm run build` 产出 `frontend/dist/{index.html, assets/}`
+4. 清理容器内 `dist/index.html` 与 `dist/assets`（文件 hash 会变，必须先删）
+5. `docker cp` 新产物覆盖进容器
+
+完成后浏览器 **Ctrl+F5 强刷** 即可看到新版本；容器内 `img/` `fonts/` `cards*.json` 等静态资源保持不动。
+
 ## Local dev
 
 ### Dependencies
