@@ -1,4 +1,4 @@
-FROM node:24.7.0-alpine AS frontend
+FROM node:24-alpine AS frontend
 
 # Frontend
 
@@ -13,7 +13,8 @@ COPY ./frontend/package.json ./frontend/tsconfig.json ./frontend/vite.config.js 
 RUN --mount=type=cache,target=/root/.npm npm ci
 COPY ./frontend /opt/arkham/src/frontend
 ENV VITE_ASSET_HOST=${ASSET_HOST}
-RUN npm run build
+RUN npm run build && \
+    cp public/cards.json public/cards_en.json public/cards_zh.json dist/
 
 FROM ubuntu:22.04 AS base
 

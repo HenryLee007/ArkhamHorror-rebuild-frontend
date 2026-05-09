@@ -46,13 +46,20 @@ async function processFile(file: File) {
     const ids = collectPlayerIds(json)
     playerIds.value = Array.from(new Set(ids))
     if (playerIds.value.length === 0) {
-      errorMsg.value = 'No playerIds found.'
+      errorMsg.value = '未找到 playerId。'
     }
 
-    gameDetails.value = await findGame(playerIds.value[0])
+    const game = await findGame(playerIds.value[0])
+    if (game.tag === 'error') {
+      errorMsg.value = game.error
+      gameDetails.value = null
+      return
+    }
+
+    gameDetails.value = game
 
   } catch (e: any) {
-    errorMsg.value = `Failed to parse JSON: ${e?.message ?? e}`
+    errorMsg.value = `解析 JSON 失败：${e?.message ?? e}`
   }
 }
 
@@ -87,7 +94,7 @@ function collectPlayerIds(node: unknown): string[] {
       role="button"
       tabindex="0"
     >
-      <p><strong>Drop your JSON here</strong> or click to choose a file</p>
+      <p><strong>将 JSON 文件拖到这里</strong>，或点击选择文件</p>
       <input
         ref="file"
         type="file"

@@ -23,7 +23,7 @@ export default [
     path: '/settings',
     name: 'Settings',
     component: Settings,
-    meta: { requiresAuth: true, title: "Arkham Horror: Settings" },
+    meta: { requiresAuth: true, title: "Arkham Horror: 设置" },
   },
   {
     path: '/about',
@@ -35,19 +35,19 @@ export default [
     path: '/admin',
     name: 'Admin',
     component: Admin,
-    meta: { requiresAuth: true, requiresAdmin: true, title: "Arkham Horror: Admin" },
+    meta: { requiresAuth: true, requiresAdmin: true, title: "Arkham Horror: 管理后台" },
   },
   {
     path: '/admin/users',
     name: 'AdminUsers',
     component: AdminUsers,
-    meta: { requiresAuth: true, requiresAdmin: true, title: "Arkham Horror: Users" },
+    meta: { requiresAuth: true, requiresAdmin: true, title: "Arkham Horror: 用户" },
   },
   {
     path: '/admin/rooms',
     name: 'Rooms',
     component: Rooms,
-    meta: { requiresAuth: true, requiresAdmin: true, title: "Arkham Horror: Rooms" },
+    meta: { requiresAuth: true, requiresAdmin: true, title: "Arkham Horror: 房间" },
   },
   {
     path: '/sign-in',

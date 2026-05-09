@@ -6,8 +6,8 @@
 
 module Base.Api.Handler.Admin.Users where
 
-import Data.Int (Int64)
 import Database.Persist qualified as P
+import Database.Persist.Sql (fromSqlKey)
 import Import
 import Network.HTTP.Types (status400)
 

@@ -5,7 +5,7 @@ import api from '@/api'
 
 interface RoomData {
   roomClients: number
-  roomLastUpdateAt: string
+  roomLastUpdatedAt: string | null
   roomArkhamGameId: string
 }
 
@@ -13,8 +13,8 @@ const props = defineProps<{
   room: RoomData
 }>()
 
-const lastUpdated = computed(() => props.room.roomLastUpdatedAt ? props.room.roomLastUpdatedAt : 'deleted')
-const deleted = computed(() => lastUpdated.value === 'deleted')
+const lastUpdated = computed(() => props.room.roomLastUpdatedAt ? props.room.roomLastUpdatedAt : '已删除')
+const deleted = computed(() => lastUpdated.value === '已删除')
 
 async function deleteRoom() {
   await api.delete(`admin/rooms/${props.room.roomArkhamGameId}`)
@@ -27,8 +27,8 @@ async function deleteRoom() {
   <div class='room'>
     <span>{{room.roomClients}}</span>
     <span>{{lastUpdated}}</span>
-    <span><router-link :to="`/admin/games/${room.roomArkhamGameId}`">View</router-link></span>
-    <span v-if="deleted"><a href='#' @click.prevent="deleteRoom">Delete</a></span>
+    <span><router-link :to="`/admin/games/${room.roomArkhamGameId}`">查看</router-link></span>
+    <span v-if="deleted"><a href='#' @click.prevent="deleteRoom">删除</a></span>
   </div>
 </template>
 

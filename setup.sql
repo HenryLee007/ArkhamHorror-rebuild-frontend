@@ -283,8 +283,8 @@ ALTER SEQUENCE public.password_resets_user_id_seq OWNED BY public.password_reset
 CREATE TABLE public.users (
     id bigint NOT NULL,
     username character varying NOT NULL,
-    email character varying NOT NULL,
-    password_digest character varying NOT NULL,
+    email character varying,
+    password_digest character varying,
     beta boolean DEFAULT false NOT NULL,
     admin boolean DEFAULT false
 );
@@ -416,6 +416,9 @@ ALTER TABLE ONLY public.users
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
 
+INSERT INTO public.users (username, email, password_digest, beta, admin)
+VALUES ('admin', NULL, '$2a$12$ufhz5rOKS4FUZnCx/IRJo.vu/LbUnqQ7GW/NOEo4cgYAoOhDDnU1O', false, true);
+
 
 --
 -- Name: arkham_decks_user_id_idx; Type: INDEX; Schema: public; Owner: -
@@ -496,4 +499,3 @@ ALTER TABLE ONLY public.password_resets
 --
 -- PostgreSQL database dump complete
 --
-

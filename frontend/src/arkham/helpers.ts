@@ -1,7 +1,3 @@
-import ita from '@/digests/ita.json'
-import es from '@/digests/es.json'
-import fr from '@/digests/fr.json'
-import ko from '@/digests/ko.json'
 import zh from '@/digests/zh.json'
 
 import { useSiteSettingsStore } from '@/stores/site_settings'
@@ -17,10 +13,6 @@ interface ImageHelper {
 const batchSize: number = 1000
 const defaultHelper: ImageHelper = { root: '', digests: new Set(), data: new Map(), loaded: ref(true) }
 const imgHelper: Map<string, ImageHelper> = new Map<string, ImageHelper>([
-  ['it', { root: 'ita', digests: new Set(ita), data: new Map(), loaded: ref(false) }],
-  ['fr', { root: 'fr', digests: new Set(fr), data: new Map(), loaded: ref(false) }],
-  ['es', { root: 'es', digests: new Set(es), data: new Map(), loaded: ref(false) }],
-  ['ko', { root: 'ko', digests: new Set(ko), data: new Map(), loaded: ref(false) }],
   ['zh', { root: 'zh', digests: new Set(zh), data: new Map(), loaded: ref(false) }]
 ])
 
@@ -107,9 +99,6 @@ export function imgsrc(src: string) {
 export function pluralize(w: string, n: number) {
   const language = localStorage.getItem('language') || 'en'
   switch (language) {
-    case 'ko': {
-      return `${w} ${n}`
-    }
     case 'zh': {
       return `${n}${w}${n == 1 ? '' : ''}`
     }
@@ -254,7 +243,7 @@ export function localizeArkhamDBBaseUrl() {
 
   const baseUrl = new URL('https://arkhamdb.com');
   if (language === "en") return baseUrl.origin;
-  if (!['de', 'es', 'fr', 'it', 'ko', 'pl', 'po', 'ru', 'uk', 'zh'].includes(language))
+  if (language !== 'zh')
     return baseUrl.origin;
 
   baseUrl.hostname = `${language}.${baseUrl.hostname}`;

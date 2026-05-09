@@ -3,13 +3,13 @@ import { computed } from 'vue'
 import api from '@/api'
 import GameRow from '@/arkham/components/GameRow.vue'
 import GameFinder from '@/components/admin/GameFinder.vue'
-import type { GameDetails } from '@/arkham/types/Game'
+import type { GameDetails, GameDetailsEntry } from '@/arkham/types/Game'
 import AdminUI from '@/arkham/components/Admin/UI.vue'
 import Room from '@/components/admin/Room.vue'
 
 interface RoomData {
   roomClients: number
-  roomLastUpdateAt: string | null
+  roomLastUpdatedAt: string | null
   roomArkhamGameId: string
 }
 
@@ -17,46 +17,48 @@ interface AdminData {
   currentUsers: number
   activeUsers: number
   roomData: RoomData[]
-  recentGames: GameDetails[]
-  activeGames: GameDetails[]
+  recentGames: GameDetailsEntry[]
+  activeGames: GameDetailsEntry[]
 }
 
 const request = await api.get<AdminData>('admin')
 const data = computed(() => request.data)
 
-const activeGames   = data.value.activeGames.filter(g => !g.error && g.gameState.tag !== 'IsOver')
-const finishedGames = data.value.activeGames.filter(g => !g.error && g.gameState.tag === 'IsOver')
+const isGameDetails = (game: GameDetailsEntry): game is GameDetails & { tag: 'game' } => game.tag === 'game'
 
-const recentActiveGames   = data.value.recentGames.filter(g => !g.error && g.gameState.tag !== 'IsOver')
-const recentFinishedGames = data.value.recentGames.filter(g => !g.error && g.gameState.tag === 'IsOver')
+const activeGames   = data.value.activeGames.filter(isGameDetails).filter(g => g.gameState.tag !== 'IsOver')
+const finishedGames = data.value.activeGames.filter(isGameDetails).filter(g => g.gameState.tag === 'IsOver')
+
+const recentActiveGames   = data.value.recentGames.filter(isGameDetails).filter(g => g.gameState.tag !== 'IsOver')
+const recentFinishedGames = data.value.recentGames.filter(isGameDetails).filter(g => g.gameState.tag === 'IsOver')
 
 </script>
 
 <template>
-  <AdminUI :selected="'dashboard'">
+  <AdminUI :selected="'dashboard'" v-slot="{ toggleSidebar }">
     <header class="topbar">
-      <button class="hamburger" @click="toggleSidebar" aria-label="Open menu">
+      <button class="hamburger" @click="toggleSidebar" aria-label="打开菜单">
         <svg viewBox="0 0 24 24"><path d="M3 6h18v2H3V6zm0 10h18v2H3v-2zm0-5h18v2H3v-2z" fill="currentColor"/></svg>
       </button>
-      <h1>Dashboard</h1>
+      <h1>仪表盘</h1>
     </header>
 
     <!-- Cards row -->
     <section class="cards-row">
       <div class="card kpi accent-blue">
-        <div class="kpi-head">Current Users</div>
+        <div class="kpi-head">当前用户</div>
         <div class="kpi-value">{{ data.currentUsers }}</div>
       </div>
       <div class="card kpi accent-purple">
-        <div class="kpi-head">Active Users (14d)</div>
+        <div class="kpi-head">活跃用户（14 天）</div>
         <div class="kpi-value">{{ data.activeUsers }}</div>
       </div>
       <div class="card kpi accent-green">
-        <div class="kpi-head">Active Games</div>
+        <div class="kpi-head">进行中的游戏</div>
         <div class="kpi-value">{{ activeGames.length }}</div>
       </div>
       <div class="card kpi accent-orange">
-        <div class="kpi-head">Finished Games</div>
+        <div class="kpi-head">已完成的游戏</div>
         <div class="kpi-value">{{ finishedGames.length }}</div>
       </div>
     </section>
@@ -66,9 +68,9 @@ const recentFinishedGames = data.value.recentGames.filter(g => !g.error && g.gam
     <!-- Active Games -->
     <section class="block">
       <div class="block-header">
-        <h2>Active Games</h2>
+        <h2>进行中的游戏</h2>
       </div>
-      <div v-if="activeGames.length === 0" class="empty">No active games.</div>
+      <div v-if="activeGames.length === 0" class="empty">暂无进行中的游戏。</div>
       <div class="game-list">
         <GameRow v-for="g in activeGames" :key="g.id" :game="g" :admin="true" />
       </div>
@@ -77,7 +79,7 @@ const recentFinishedGames = data.value.recentGames.filter(g => !g.error && g.gam
     <!-- Finished Games -->
     <section class="block" v-if="finishedGames.length > 0">
       <div class="block-header">
-        <h2>Finished Games</h2>
+        <h2>已完成的游戏</h2>
       </div>
       <div class="game-list">
         <GameRow v-for="g in finishedGames" :key="g.id" :game="g" :admin="true" />
@@ -87,9 +89,9 @@ const recentFinishedGames = data.value.recentGames.filter(g => !g.error && g.gam
     <!-- Active Games -->
     <section class="block">
       <div class="block-header">
-        <h2>Recent Active Games (from last 20)</h2>
+        <h2>最近进行中的游戏（最近 20 场）</h2>
       </div>
-      <div v-if="recentActiveGames.length === 0" class="empty">No active games.</div>
+      <div v-if="recentActiveGames.length === 0" class="empty">暂无进行中的游戏。</div>
       <div class="game-list">
         <GameRow v-for="g in recentActiveGames" :key="g.id" :game="g" :admin="true" />
       </div>
@@ -98,7 +100,7 @@ const recentFinishedGames = data.value.recentGames.filter(g => !g.error && g.gam
     <!-- Finished Games -->
     <section class="block" v-if="recentFinishedGames.length > 0">
       <div class="block-header">
-        <h2>Recent Finished Games (from last 20)</h2>
+        <h2>最近已完成的游戏（最近 20 场）</h2>
       </div>
       <div class="game-list">
         <GameRow v-for="g in recentFinishedGames" :key="g.id" :game="g" :admin="true" />
@@ -108,7 +110,7 @@ const recentFinishedGames = data.value.recentGames.filter(g => !g.error && g.gam
     <!-- Rooms -->
     <section class="block" v-if="recentFinishedGames.length > 0">
       <div class="block-header">
-        <h2>Rooms</h2>
+        <h2>房间</h2>
       </div>
       <div class="game-list">
         <Room v-for="room in data.roomData" :room="room" :key="room.roomArkhamGameId" />

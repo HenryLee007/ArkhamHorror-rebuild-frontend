@@ -15,10 +15,20 @@ import * as VueI18n from 'vue-i18n'
 import messages from '@/locales/messages'
 import mitt from 'mitt';
 
+const supportedLanguages = ['en', 'zh'] as const
+type SupportedLanguage = typeof supportedLanguages[number]
+
+const isSupportedLanguage = (value: string): value is SupportedLanguage =>
+  supportedLanguages.includes(value as SupportedLanguage)
+
+const normalizeLanguage = (value?: string | null): SupportedLanguage => {
+  const languageCode = value?.split('-')[0]
+  return languageCode && isSupportedLanguage(languageCode) ? languageCode : 'en'
+}
+
 const language = localStorage.getItem('language')
-const naviLanguage = navigator.language || navigator.userLanguage || 'en'
-const currentLanguage = language ?? naviLanguage.split('-')[0]
-if (!language) { localStorage.setItem('language', currentLanguage) }
+const currentLanguage = normalizeLanguage(language ?? navigator.language)
+if (language !== currentLanguage) { localStorage.setItem('language', currentLanguage) }
 
 const i18n = VueI18n.createI18n({
   locale: currentLanguage, // set locale
