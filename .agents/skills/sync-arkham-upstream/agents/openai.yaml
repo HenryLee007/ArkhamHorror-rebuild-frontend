@@ -1,0 +1,4 @@
+interface:
+  display_name: "Arkham Upstream Sync"
+  short_description: "Sync Arkham rules from upstream safely"
+  default_prompt: "Sync upstream ArkhamHorror rule engine updates into this project using the project-specific workflow."

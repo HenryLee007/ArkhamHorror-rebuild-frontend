@@ -177,13 +177,34 @@ stack build --flag arkham-api:library-only --flag arkham-api:dev
 stack test --flag arkham-api:library-only --flag arkham-api:dev
 ```
 
-前端至少运行：
+前端至少运行构建：
 
 ```bash
 cd frontend
-npm run tc
 npm run build
 ```
+
+### TypeScript 基线策略
+
+当前源仓库 `upstream/main` 和本仓同步前 `dev` 都存在既有 `npm run tc` 错误，因此上游同步时不能把 `tc` 全绿作为硬门禁。正确做法是比对三份基线：
+
+- 本仓目标分支，例如 `dev`。
+- 源仓库分支，例如 `upstream/main`。
+- 当前同步分支，例如 `HEAD`。
+
+优先使用项目内 skill 附带脚本：
+
+```bash
+.agents/skills/sync-arkham-upstream/scripts/compare-tc-baselines.sh dev upstream/main
+```
+
+脚本默认把当前工作区作为同步分支检查对象，因此能覆盖 `git merge --no-commit` 后尚未提交的解冲突结果。
+
+判定规则：
+
+- `dev` 或 `upstream/main` 已存在的 `tc` 错误，不阻塞本轮同步，但需要在汇报中说明。
+- 同步分支新增、且属于本仓 UI/中文化/部署集成改动的 `tc` 错误，必须修复。
+- 同步分支新增、但来自源仓库规则/API/类型演进的错误，先确认 `npm run build`、Docker 后端编译和基本流程是否通过；若运行时正常，可作为源仓库类型债记录，不强行在同步任务里修完整套类型系统。
 
 Docker 冒烟验证：
 
@@ -210,14 +231,14 @@ curl -f http://localhost:3000/health
 
 ## 提交
 
-验证通过后再提交：
+硬门禁通过后再提交：
 
 ```bash
 git add <resolved-files>
 git commit -m "sync upstream game updates YYYY-MM-DD"
 ```
 
-如果验证失败，不要提交。先定位失败是源仓库变化、本地 UI 集成冲突，还是环境问题。
+如果后端编译、`npm run build`、Docker 冒烟或基本游戏流程失败，不要提交。`npm run tc` 失败时按基线策略判断；不要要求本轮同步修复上游和历史分支已有的全部类型债。
 
 ## 必须停下提问的情况
 
