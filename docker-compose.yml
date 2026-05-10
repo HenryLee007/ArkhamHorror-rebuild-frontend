@@ -46,8 +46,9 @@ services:
     depends_on:
       - db
     volumes:
-      - ./frontend/public/img:/opt/arkham/src/frontend/dist/img
-      - ../arkham-build-assets:/opt/arkham/build-assets:ro
+      - ./.local-assets/arkham-horror-images/img:/opt/arkham/src/frontend/dist/img:ro
+      - ./prod.nginxconf:/opt/arkham/src/backend/prod.nginxconf:ro
+      - ./.local-assets/arkham-build-assets:/opt/arkham/build-assets:ro
   arkham-build-db:
     image: postgres:18-alpine
     restart: always
@@ -64,7 +65,7 @@ services:
       - arkham_build_pgdata:/var/lib/postgresql
   arkham-build-ingest:
     build:
-      context: ../arkham.build-main/arkham.build-main
+      context: ./arkham.build
       dockerfile: backend/Dockerfile
     depends_on:
       arkham-build-db:
@@ -91,7 +92,7 @@ services:
     restart: "no"
   arkham-build-api:
     build:
-      context: ../arkham.build-main/arkham.build-main
+      context: ./arkham.build
       dockerfile: backend/Dockerfile
     depends_on:
       arkham-build-ingest:
@@ -115,9 +116,9 @@ services:
       VITE_PAGE_NAME: arkham.build
       VITE_SHOW_PREVIEW_BANNER: "false"
     volumes:
-      - ../arkham.build-main/arkham.build-main:/app
+      - ./arkham.build:/app
       - arkham_build_node_modules:/app/node_modules
-    command: ["sh", "-c", "find node_modules -mindepth 1 -maxdepth 1 -exec rm -rf {} + && npm ci --include=optional && npm run build -w frontend && npm run preview -w frontend -- --host 0.0.0.0 --port 3000"]
+    command: ["sh", "-c", "find node_modules -mindepth 1 -maxdepth 1 -exec rm -rf {} + && npm ci --include=optional && npm run build -w frontend && npm run preview -w frontend -- --host 0.0.0.0 --port 3000 --base \"$${VITE_BASE_PATH}\""]
   fetch-images:
     profiles: ["fetch-images"]
     image: amazon/aws-cli

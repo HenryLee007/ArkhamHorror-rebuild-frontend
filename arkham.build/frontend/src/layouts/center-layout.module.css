@@ -1,0 +1,16 @@
+.layout {
+  display: flex;
+  height: 100%;
+  flex-flow: column nowrap;
+  padding: 1px;
+  min-height: 0;
+}
+
+.top {
+  flex: 0 0 auto;
+}
+
+.main {
+  flex: 1 1 auto;
+  overflow: hidden;
+}

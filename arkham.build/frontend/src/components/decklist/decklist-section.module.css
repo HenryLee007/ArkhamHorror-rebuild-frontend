@@ -1,0 +1,37 @@
+.decklist-section {
+  flex: 1 1 100%;
+}
+
+.decklist-section-title {
+  font-size: var(--text-sm);
+  margin-bottom: 0.25rem;
+}
+
+.decklist-section-extra-infos {
+  font-size: var(--text-2xs);
+  font-weight: 400;
+  padding-left: 0.25rem;
+}
+
+.decklist-section + .decklist-section {
+  margin-top: 0.5rem;
+}
+
+.decklist-section.auto .decklist-section-content {
+  column-count: var(--max-columns);
+  column-width: 21.5rem;
+  column-gap: 1.5rem;
+  column-rule: 1px solid var(--palette-point-five);
+}
+
+.decklist-section.auto .decklist-section-content > * {
+  break-inside: avoid;
+}
+
+.decklist-section.single .decklist-section-content > * {
+  max-width: 21.5rem;
+}
+
+.decklist-section.scans .decklist-section-title {
+  font-size: 0.625rem;
+}

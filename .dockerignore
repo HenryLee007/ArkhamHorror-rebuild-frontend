@@ -8,6 +8,8 @@
 **/*.dyn_hi
 **/*.dyn_o
 **/.DS_Store
+arkham.build
+.local-assets
 **/*.swp
 **/*.dump-hi
 **/*.hie

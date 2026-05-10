@@ -35,6 +35,7 @@ logfile
 *.eventlog
 *.eventlog.html
 *.hp
+.local-assets/
 
 .kamal/secrets
 

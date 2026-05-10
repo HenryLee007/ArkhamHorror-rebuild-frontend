@@ -1,0 +1,22 @@
+.layout-inner {
+  display: flex;
+  flex-flow: column nowrap;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding-inline: var(--layout-padding);
+  max-width: var(--layout-max-width);
+  padding-bottom: 0.5rem;
+}
+
+.header {
+  flex: 0 0 auto;
+}
+
+.main {
+  flex: 1 1 auto;
+}
+
+.footer {
+  padding-top: 0.5rem;
+  flex: 0 0 auto;
+}

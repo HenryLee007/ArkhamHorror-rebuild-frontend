@@ -1,0 +1,61 @@
+{
+  "name": "@arkham-build/frontend",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "analyze": "npx vite-bundle-visualizer",
+    "build": "vite build",
+    "check": "tsc --noEmit",
+    "dev": "vite",
+    "fmt:rules": "npx prettier src/assets/rules.html --write",
+    "i18n:sync": "node ./scripts/i18n-sync.ts && cd .. && npm run fmt && cd frontend",
+    "i18n:pull": "npx tsx ./scripts/i18n-pull.ts && cd .. && npm run fmt && cd frontend",
+    "icons:export": "mkdir -p public/lucide && npm i lucide-static && cp -R node_modules/lucide-static/icons public/lucide && npm uninstall lucide-static",
+    "knip": "npx knip",
+    "preview": "vite preview",
+    "schema:fan-made-content": "node ./scripts/fan-made-content-schema.ts",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "@floating-ui/react": "0.27.19",
+    "@fontsource-variable/noto-sans": "5.2.10",
+    "@fontsource-variable/noto-serif": "5.2.9",
+    "@lucide/lab": "0.1.2",
+    "@radix-ui/react-slider": "1.3.6",
+    "@radix-ui/react-tabs": "1.1.13",
+    "@tanstack/react-query": "5.90.21",
+    "dompurify": "3.4.1",
+    "i18next": "25.8.13",
+    "i18next-resources-to-backend": "1.2.1",
+    "idb-keyval": "6.2.2",
+    "lucide-react": "0.575.0",
+    "marked": "17.0.3",
+    "nanoid": "5.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-i18next": "16.5.4",
+    "react-virtuoso": "4.18.1",
+    "recharts": "3.7.0",
+    "reselect": "5.1.1",
+    "wouter": "3.9.0",
+    "zustand": "5.0.11"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260226.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.1",
+    "autoprefixer": "10.4.27",
+    "happy-dom": "20.8.9",
+    "rollup-plugin-bundle-stats": "4.22.1",
+    "vite": "8.0.5"
+  }
+}

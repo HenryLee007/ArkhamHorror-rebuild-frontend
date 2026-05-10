@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: var(--card-spacing-x, 0.375rem);
+}
+
+.value {
+  font-size: var(--text-xs);
+  font-family: var(--font-family-ui);
+  line-height: 1;
+  border-radius: var(--rounded);
+  border: 1px solid var(--palette-1);
+  padding: calc(var(--card-spacing-x, 0.375rem) / 4)
+    calc(var(--card-spacing-x, 0.375rem) / 2);
+  user-select: none;
+}
+
+.x {
+  color: var(--palette-three-point0-five);
+}

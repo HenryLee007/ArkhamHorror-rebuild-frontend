@@ -1,0 +1,164 @@
+.rules {
+  --red: var(--nord-11);
+  --blue: var(--nord-9);
+}
+
+html[data-theme="light"] {
+  --blue: var(--nord-10);
+}
+
+.container {
+  position: relative;
+  padding: 1rem;
+
+  @media screen and (min-width: 58rem) {
+    display: grid;
+    grid-template-columns: 26rem 1fr;
+    gap: 2rem;
+  }
+}
+
+.toc-toggle {
+  display: flex;
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 3;
+  box-shadow: var(--shadow-lg);
+
+  @media screen and (min-width: 58rem) {
+    display: none;
+  }
+}
+
+.toc-container {
+  background: var(--palette-point-five);
+  border-radius: var(--rounded);
+  padding: 0.625rem;
+  border: 1px solid var(--palette-2);
+  position: fixed;
+  top: 0.25rem;
+  right: 0.25rem;
+  flex-flow: column nowrap;
+  height: 100%;
+  z-index: 2;
+  max-height: 90dvh;
+  max-width: 26rem;
+  width: calc(100% - 0.5rem);
+  box-shadow: var(--shadow);
+  display: none;
+
+  &.open {
+    display: flex;
+  }
+
+  @media screen and (min-width: 58rem) {
+    display: flex;
+    position: sticky;
+    inset: unset;
+    right: initial;
+    top: 0.25rem;
+
+    &.open {
+      display: flex;
+    }
+  }
+}
+
+.toc-title {
+  flex: 0 0 auto;
+  font-size: var(--text-xl);
+  text-align: center;
+}
+
+.toc-nav {
+  flex: 0 0 auto;
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.375rem;
+}
+
+.toc-inner {
+  flex: 1 1 auto;
+}
+
+.toc-container > * + * {
+  margin-top: 0.5rem;
+}
+
+.toc .rop {
+  position: relative;
+}
+
+.toc * + * {
+  margin-top: 0.5rem;
+}
+
+.toc ul {
+  list-style-type: disc;
+  padding-left: 1rem;
+}
+
+.toc a {
+  text-decoration: none;
+}
+
+html[data-theme="light"] .toc a {
+  color: var(--nord-10);
+}
+
+.rules-container {
+  padding-block: 1rem;
+}
+
+.rules-container > * + * {
+  margin-top: 1rem;
+}
+
+.rules {
+  max-width: 80ch;
+  margin-inline: auto;
+}
+
+.rules .green {
+  background: var(--nord-14);
+  color: var(--nord-0);
+}
+
+.rules .red {
+  background: var(--nord-11);
+  color: var(--nord-0);
+}
+
+.rules a {
+  color: currentColor;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.rules table {
+  width: 100%;
+}
+
+.rules .chart th,
+.rules .chart td {
+  padding: 0.375rem;
+}
+
+.rules .chart th {
+  background-color: var(--palette-1);
+}
+
+.frame {
+  border: 1px solid var(--palette-1);
+  border-radius: var(--rounded);
+  padding: 0.25rem;
+  background: var(--palette-point-five);
+  box-shadow: var(--shadow);
+}
+
+.grimoire {
+  max-width: 90ch;
+  margin-inline: auto;
+  padding-block: 1rem;
+}

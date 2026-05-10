@@ -1,0 +1,22 @@
+.printing {
+  background-color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  text-align: inherit;
+
+  &.active {
+    font-weight: bold;
+  }
+}
+
+.printing-icon {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  margin-right: 0.1875rem;
+  vertical-align: baseline;
+}
+
+.printing-action {
+  margin-left: 0.25rem;
+}

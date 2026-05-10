@@ -1,0 +1,38 @@
+.icon {
+  position: relative;
+  width: 1em;
+  height: 1em;
+
+  display: inline-block;
+  border-radius: var(--rounded);
+}
+
+.icon.agility {
+  color: var(--agility);
+}
+
+.icon.combat {
+  color: var(--combat);
+}
+
+.icon.willpower {
+  color: var(--willpower);
+}
+
+.icon.intellect {
+  color: var(--intellect);
+}
+
+.icon.wild {
+  color: var(--wild);
+}
+
+.icon > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.inverted {
+  color: var(--color-inverted);
+}

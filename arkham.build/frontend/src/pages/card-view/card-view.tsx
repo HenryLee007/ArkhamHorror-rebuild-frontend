@@ -1,0 +1,286 @@
+import { FloatingPortal } from "@floating-ui/react";
+import { DownloadIcon, GlobeIcon } from "lucide-react";
+import { useCallback } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useParams, useSearchParams } from "wouter";
+import {
+  CardArkhamDBLink,
+  CardReviewsLink,
+} from "@/components/card-modal/card-arkhamdb-links";
+import { CardModalProvider } from "@/components/card-modal/card-modal-provider";
+import { CardScan } from "@/components/card-scan";
+import { Footer } from "@/components/footer";
+import { Masthead } from "@/components/masthead";
+import { Printing } from "@/components/printing";
+import { Button } from "@/components/ui/button";
+import { PageTitle } from "@/components/ui/page-title";
+import { useRestingTooltip } from "@/components/ui/tooltip.hooks";
+import { CardViewCards } from "@/pages/card-view/card-view-cards";
+import { useStore } from "@/store";
+import type { CardWithRelations } from "@/store/lib/types";
+import { selectCardWithRelations } from "@/store/selectors/card-view";
+import {
+  type Printing as PrintingT,
+  selectLookupTables,
+  selectPrintingsForCard,
+} from "@/store/selectors/shared";
+import {
+  cardUrl,
+  deckCreateLink,
+  displayAttribute,
+  isStaticInvestigator,
+  oldFormatCardUrl,
+} from "@/utils/card-utils";
+import { groupPrintingsByChapter } from "@/utils/chapters";
+import {
+  CYCLES_WITH_STANDALONE_PACKS,
+  FLOATING_PORTAL_ID,
+} from "@/utils/constants";
+import { cx } from "@/utils/cx";
+import { download } from "@/utils/download";
+import { ErrorStatus } from "../errors/404";
+import css from "./card-view.module.css";
+import { Faq } from "./faq";
+import { UsableBy } from "./usable-by";
+
+function CardView() {
+  const { code } = useParams();
+
+  const { t } = useTranslation();
+  const cardWithRelations = useStore((state) =>
+    selectCardWithRelations(state, code, true, undefined),
+  );
+  const devModeEnabled = useStore((state) => state.settings.devModeEnabled);
+
+  const onExport = useCallback(() => {
+    if (!cardWithRelations) return;
+
+    const cards = [
+      cardWithRelations.card,
+      ...(cardWithRelations.back?.card ? [cardWithRelations.back.card] : []),
+    ];
+
+    download(
+      JSON.stringify(cards, null, 2),
+      `${cardWithRelations.card.code}.json`,
+      "application/json",
+    );
+  }, [cardWithRelations]);
+
+  if (!cardWithRelations) {
+    return <ErrorStatus statusCode={404} />;
+  }
+
+  const isInvestigator = cardWithRelations.card.type_code === "investigator";
+  const isBuildableInvestigator =
+    isInvestigator && !isStaticInvestigator(cardWithRelations.card);
+
+  const deckbuildable =
+    !cardWithRelations.card.encounter_code && !isInvestigator;
+
+  const parallel = (cardWithRelations as CardWithRelations).relations?.parallel
+    ?.card;
+
+  return (
+    <CardModalProvider>
+      <PageTitle>{displayAttribute(cardWithRelations.card, "name")}</PageTitle>
+      <div className={cx(css["layout"], "fade-in")}>
+        <Masthead className={css["header"]} />
+        <main className={css["main"]}>
+          <CardViewCards
+            cardWithRelations={cardWithRelations}
+            key={cardWithRelations.card.code}
+          />
+        </main>
+        <nav className={css["sidebar"]}>
+          <div className={css["sidebar-inner"]}>
+            <SidebarSection title={t("card_view.section_printings")}>
+              <Printings code={cardWithRelations.card.code} />
+            </SidebarSection>
+            <SidebarSection title={t("card_view.section_actions")}>
+              <CardArkhamDBLink card={cardWithRelations.card} size="full">
+                <GlobeIcon /> {t("card_view.actions.open_on_arkhamdb")}
+              </CardArkhamDBLink>
+              <CardReviewsLink card={cardWithRelations.card} size="full" />
+              {devModeEnabled && (
+                <Button
+                  data-testid="card-view-export"
+                  onClick={onExport}
+                  size="full"
+                >
+                  <DownloadIcon />
+                  {t("lists.nav.export")}
+                </Button>
+              )}
+              {isBuildableInvestigator && (
+                <Link asChild href={deckCreateLink(cardWithRelations.card)}>
+                  <Button
+                    as="a"
+                    data-testid="card-modal-create-deck"
+                    size="full"
+                  >
+                    <i className="icon-deck" /> {t("deck.actions.create")}
+                  </Button>
+                </Link>
+              )}
+            </SidebarSection>
+
+            {cardWithRelations.card.official && (
+              <SidebarSection title={t("card_view.section_faq")}>
+                <Faq card={cardWithRelations.card} />
+              </SidebarSection>
+            )}
+
+            {(deckbuildable || isInvestigator) && (
+              <SidebarSection title={t("card_view.section_deckbuilding")}>
+                {isBuildableInvestigator && (
+                  <>
+                    <Link
+                      asChild
+                      href={`/card/${cardWithRelations.card.code}/usable_cards`}
+                    >
+                      <Button size="full" data-testid="usable-cards" as="a">
+                        <i className="icon-cards" />
+                        {t("card_view.actions.usable_by", {
+                          prefix: "",
+                          name: displayAttribute(
+                            cardWithRelations.card,
+                            "name",
+                          ),
+                        })}
+                      </Button>
+                    </Link>
+                    {parallel && (
+                      <Link
+                        asChild
+                        href={`/card/${parallel.code}/usable_cards`}
+                      >
+                        <Button
+                          size="full"
+                          data-testid="usable-cards-parallel"
+                          as="a"
+                        >
+                          <i className="icon-cards" />
+                          {t("card_view.actions.usable_by", {
+                            prefix: `${t("common.parallel")} `,
+                            name: displayAttribute(
+                              cardWithRelations.card,
+                              "name",
+                            ),
+                          })}
+                        </Button>
+                      </Link>
+                    )}
+                  </>
+                )}
+                {deckbuildable && <UsableBy card={cardWithRelations.card} />}
+              </SidebarSection>
+            )}
+          </div>
+        </nav>
+        <Footer />
+      </div>
+    </CardModalProvider>
+  );
+}
+
+function SidebarSection(props: { title: string; children: React.ReactNode }) {
+  return (
+    <section className={css["sidebar-section"]}>
+      <header className={css["sidebar-section-header"]}>
+        <h2 className={css["sidebar-section-title"]}>{props.title}</h2>
+      </header>
+      <div className={css["sidebar-section-content"]}>{props.children}</div>
+    </section>
+  );
+}
+
+function Printings(props: { code: string }) {
+  const printings = useStore((state) =>
+    selectPrintingsForCard(state, props.code),
+  );
+
+  const { t } = useTranslation();
+  const [search] = useSearchParams();
+  const oldFormat = search.get("old_format") === "true";
+
+  const lookupTables = useStore(selectLookupTables);
+  const printingsByChapter = groupPrintingsByChapter(printings);
+
+  return (
+    <div className={css["printings-groups"]}>
+      {printingsByChapter.map(([chapter, chapterPrintings]) => (
+        <section className={css["printings-group"]} key={chapter}>
+          <h3 className={css["printings-chapter-title"]}>
+            {t("settings.collection.chapter", { number: chapter })}
+          </h3>
+          <ul className={css["printings"]}>
+            {chapterPrintings.map((printing) => {
+              const reprintPackCode =
+                lookupTables.reprintPacksByPack[printing.pack.code];
+
+              return (
+                <li key={`${printing.pack.code}-${printing.card.code}`}>
+                  <ListPrinting
+                    active={
+                      printing.card.code === props.code &&
+                      (CYCLES_WITH_STANDALONE_PACKS.includes(
+                        printing.cycle.code,
+                      ) ||
+                        oldFormat === !printing.pack.reprint_type)
+                    }
+                    printing={printing}
+                    oldFormat={!!reprintPackCode}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function ListPrinting({
+  active,
+  oldFormat,
+  printing,
+}: {
+  active?: boolean;
+  oldFormat?: boolean;
+  printing: PrintingT;
+}) {
+  const { refs, referenceProps, isMounted, floatingStyles, transitionStyles } =
+    useRestingTooltip();
+
+  const url = oldFormat
+    ? oldFormatCardUrl(printing.card)
+    : cardUrl(printing.card);
+
+  return (
+    <>
+      <Link
+        {...referenceProps}
+        className={cx(css["printings-item"], active && css["active"])}
+        ref={refs.setReference}
+        to={url}
+      >
+        <Printing printing={printing} linked={false} />
+      </Link>
+      {isMounted && (
+        <FloatingPortal id={FLOATING_PORTAL_ID}>
+          <div
+            className={css["preview"]}
+            ref={refs.setFloating}
+            style={{ ...floatingStyles, ...transitionStyles }}
+          >
+            <CardScan card={printing.card} preventFlip />
+          </div>
+        </FloatingPortal>
+      )}
+    </>
+  );
+}
+
+export default CardView;

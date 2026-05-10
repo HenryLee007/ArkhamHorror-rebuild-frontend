@@ -1,0 +1,23 @@
+.slots {
+  display: flex;
+  flex-flow: row nowrap;
+  list-style: none;
+  gap: 0.25rem;
+}
+
+.slots li {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 2rem;
+  height: 2rem;
+  background: var(--palette-2);
+  color: var(--text);
+  font-size: 1.375rem;
+  border-radius: 50%;
+  border: 2px solid var(--palette-3);
+}
+
+.slots li i[class*="hand_x2"] {
+  font-size: 1.125rem;
+}

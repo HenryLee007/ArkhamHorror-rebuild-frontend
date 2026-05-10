@@ -1,0 +1,109 @@
+.combobox {
+  position: relative;
+}
+
+.combobox > :not(:global(.sr-only)) + :not(:global(.sr-only)) {
+  margin-top: 0.25rem;
+}
+
+.control-label {
+  display: inline-block;
+  font-size: var(--text-sm);
+  margin-bottom: 0.25rem;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.control-input {
+  flex: 1 1 100%;
+  padding-right: 1.25rem;
+}
+
+.control-indicator {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  width: 0.75rem;
+  height: 0.75rem;
+  transform: translateY(-50%);
+  color: var(--palette-three-point-five);
+  pointer-events: none;
+}
+
+.control-row:hover .control-indicator {
+  color: var(--palette-4);
+}
+
+.control-row:focus-within .control-indicator {
+  color: var(--text);
+}
+
+.control-toggle {
+  flex: 0 0 auto;
+}
+
+.menu {
+  width: 100%;
+  max-width: min(20rem, 50dvw);
+  background: var(--palette-point-five);
+  color: var(--palette-5);
+  padding: 0.25rem;
+  border: 1px solid var(--palette-2);
+  border-radius: var(--rounded);
+  box-shadow: var(--shadow);
+  font-family: var(--font-family-ui);
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.menu-viewport {
+  display: grid;
+  grid-template-rows: min-content;
+  height: min(min(calc(var(--viewport-item-count) * 3.875rem), 15.5rem), 40dvh);
+  overflow-y: auto;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  cursor: pointer;
+  position: relative;
+  font-size: var(--text-sm);
+  padding: 0 0 0 2rem;
+
+  &.active {
+    background-color: var(--palette-1);
+    color: var(--palette-5);
+  }
+
+  &.padded {
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
+  }
+}
+
+.menu-item-check {
+  position: absolute;
+  left: 0.5rem;
+  top: calc(50%);
+  transform: translateY(-50%);
+}
+
+.results {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-flow: row wrap;
+  width: 100%;
+  list-style: none;
+  padding: 0;
+}

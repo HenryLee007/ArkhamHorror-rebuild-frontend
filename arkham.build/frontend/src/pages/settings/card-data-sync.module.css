@@ -1,0 +1,33 @@
+.sync > * + * {
+  margin-top: 0.5rem;
+}
+
+.sync p {
+  font-family: var(--font-family-ui);
+  font-size: var(--text-sm);
+}
+
+.status p {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--rounded-lg);
+}
+
+.sync .status-icon {
+  color: var(--nord-10);
+}
+
+.sync.uptodate .status-icon {
+  color: var(--nord-14);
+}
+
+.info {
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: max-content 1fr;
+}
+
+.info dt {
+  font-weight: 700;
+}

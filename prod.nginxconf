@@ -20,6 +20,16 @@ http {
       return 302 /build-assets/;
     }
 
+    location /build-assets/thumbnails/ {
+      alias /opt/arkham/build-assets/optimized/;
+      types {
+        image/avif avif;
+      }
+      default_type image/avif;
+      add_header Cache-Control "public, max-age=31536000, immutable";
+      try_files $uri =404;
+    }
+
     location /build-assets/ {
       alias /opt/arkham/build-assets/;
       types {
@@ -73,6 +83,12 @@ http {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
         add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
+    }
+
+    location ~* ^/img/.*\.avif$ {
+      root /opt/arkham/src/frontend/dist;
+      default_type image/avif;
+      try_files $uri =404;
     }
 
     location / {

@@ -1,0 +1,44 @@
+.search {
+  position: relative;
+
+  &:focus-within .icon_search {
+    color: var(--text);
+  }
+
+  &.has-error input {
+    border-color: var(--health);
+    outline-color: var(--health);
+  }
+}
+
+.icon_clear {
+  display: inline-flex;
+  gap: 1px;
+  align-items: center;
+}
+
+.icon_clear,
+.icon_search {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.input {
+  padding-right: calc(2rem + var(--icon-slot-size));
+  width: 100%;
+}
+
+.has-icon .input {
+  padding-left: 2rem;
+}
+
+.icon_search {
+  left: 0.5rem;
+  color: var(--palette-three-point-five);
+}
+
+.icon_clear {
+  right: 0.5rem;
+  padding: 0.125rem;
+}

@@ -1,0 +1,60 @@
+.masthead {
+  flex: 0 0 auto;
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.375rem;
+  padding: 0.75rem 0;
+  height: calc(1.5rem + var(--icon-3xl));
+}
+
+.masthead.invert {
+  color: var(--nord-6);
+}
+
+.left {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.logo {
+  display: inline-flex;
+  gap: 0.375rem;
+  margin-left: 0.25rem;
+  align-items: center;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: currentColor;
+}
+
+.logo svg {
+  flex: 0 0 auto;
+}
+
+.logo-name {
+  flex: 1 1 auto;
+
+  @media screen and (max-width: 30rem) {
+    display: none;
+  }
+}
+
+.logo svg {
+  font-size: var(--icon-xl);
+  fill: currentColor;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  flex: 1 1 auto;
+}
+
+.right svg {
+  font-size: var(--icon-sm);
+}

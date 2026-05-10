@@ -1,0 +1,10 @@
+.plane {
+  padding: 0.75rem;
+  border-radius: var(--rounded);
+  border: 1px solid var(--palette-1);
+  background-color: var(--palette-point-five);
+}
+
+.plane.sm {
+  padding: 0.5rem;
+}

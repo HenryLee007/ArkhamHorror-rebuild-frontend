@@ -1,0 +1,47 @@
+import { lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
+import type { ResolvedDeck } from "@/store/lib/types";
+import { cx } from "@/utils/cx";
+import { Loader } from "../ui/loader";
+import { Scroller } from "../ui/scroller";
+import { AllAttachables } from "./all-attachables";
+import css from "./deck-tools.module.css";
+import { DrawSimulator } from "./draw-simulator";
+import { LimitedSlots } from "./limited-slots";
+
+type Props = {
+  deck: ResolvedDeck;
+  readonly?: boolean;
+  ref?: React.Ref<HTMLDivElement>;
+  scrollable?: boolean;
+  showTitle?: boolean;
+  slotLeft?: React.ReactNode;
+  slotRight?: React.ReactNode;
+};
+
+const LazyChartContainer = lazy(() => import("./chart-container"));
+
+export function DeckTools(props: Props) {
+  const { deck, readonly, ref, scrollable } = props;
+
+  const { t } = useTranslation();
+
+  const node = (
+    <article className={cx(css["deck-tools"])} ref={ref}>
+      <Suspense fallback={<Loader show message={t("deck.tools.loading")} />}>
+        <DrawSimulator deck={deck} />
+        <LazyChartContainer deck={deck} />
+        <LimitedSlots deck={deck} />
+        <AllAttachables deck={deck} readonly={readonly} />
+      </Suspense>
+    </article>
+  );
+
+  return scrollable ? (
+    <Scroller className={css["scroller"]} type="always">
+      {node}
+    </Scroller>
+  ) : (
+    node
+  );
+}

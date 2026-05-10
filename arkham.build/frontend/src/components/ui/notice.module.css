@@ -1,0 +1,21 @@
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.025);
+  border-radius: var(--rounded);
+  border: 1px solid var(--text);
+  padding: 0.5rem;
+}
+
+.notice-icon {
+  flex: 0 0 auto;
+}
+
+.notice.info {
+  border-color: var(--nord-9);
+}
+
+.notice.info .notice-icon {
+  color: var(--nord-9);
+}

@@ -1,0 +1,31 @@
+.title-container {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
+  line-height: 1;
+}
+
+.active {
+  width: 0.5rem;
+  height: 0.5rem;
+  fill: var(--nord-8);
+  stroke: none;
+}
+
+:root[data-theme="light"] .active {
+  fill: var(--nord-10);
+}
+
+.collapsible {
+  padding: 0.5rem 0;
+}
+
+.locked {
+  border: 1px solid var(--palette-3);
+}
+
+.locked-icon {
+  width: 0.75rem;
+  color: var(--palette-three-point-five);
+}

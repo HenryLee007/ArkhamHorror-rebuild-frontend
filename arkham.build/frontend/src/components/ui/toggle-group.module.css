@@ -1,0 +1,98 @@
+.togglegroup {
+  display: inline-flex;
+  justify-content: center;
+
+  &.is-icons .item {
+    padding: 0.25rem 0.5rem;
+  }
+
+  &.is-icons .item {
+    font-size: var(--icon-base);
+  }
+
+  &.is-icons .item.small {
+    font-size: var(--icon-sm);
+  }
+
+  &.is-full {
+    display: flex;
+    width: 100%;
+  }
+
+  &.is-full .item {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.item {
+  --background-inactive: var(--palette-1);
+  --background-hover: var(--palette-2);
+  --background-active: var(--palette-3);
+  --color-border: var(--palette-2);
+  --active-color: var(--palette-6);
+
+  background: var(--background-inactive);
+  border-style: solid;
+  border-color: var(--color-border);
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+  border-left-width: 0;
+  color: currentColor;
+  border-right-color: var(--color-border);
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  font-size: var(--text-sm);
+  line-height: 1;
+  padding: 0.375rem 0.5rem;
+  user-select: none;
+
+  &.small {
+    padding: 0.25rem 0.375rem;
+  }
+
+  &:first-child {
+    border-left-width: 1px;
+    border-top-left-radius: var(--rounded-xl);
+    border-bottom-left-radius: var(--rounded-xl);
+  }
+
+  &:last-child {
+    border-top-right-radius: var(--rounded-xl);
+    border-bottom-right-radius: var(--rounded-xl);
+    border-right-color: var(--color-border);
+  }
+
+  &[data-state="on"] {
+    color: var(--active-color);
+    background: var(--background-active);
+    border-right-color: var(--color-border);
+  }
+
+  &:focus-visible {
+    z-index: 1;
+  }
+
+  &:hover:not([data-state="on"]),
+  &:active:not([data-state="on"]),
+  &:focus-visible:not([data-state="on"]) {
+    background: var(--background-hover);
+  }
+
+  &:hover[data-state="on"],
+  &:active[data-state="on"],
+  &:focus-visible[data-state="on"] {
+    background: var(--background-active);
+  }
+}
+
+:root[data-theme="light"] .item {
+  --background-active: var(--white);
+  --background-inactive: var(--palette-1);
+  --background-hover: var(--palette-point-five);
+  --color-border: var(--palette-2);
+}

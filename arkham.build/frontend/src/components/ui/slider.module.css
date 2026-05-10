@@ -1,0 +1,47 @@
+.slider {
+  --slider-height: 1.25rem;
+  --track-height: 0.25rem;
+  --color-track: var(--palette-2);
+  --color-range: var(--palette-5);
+  --thumb-size: 1.25rem;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  touch-action: none;
+  width: 100%;
+  height: var(--slider-height);
+}
+
+.track {
+  background-color: var(--color-track);
+  position: relative;
+  flex-grow: 1;
+  height: var(--track-height);
+}
+
+.range {
+  position: absolute;
+  background-color: var(--color-range);
+  height: 100%;
+}
+
+.thumb {
+  display: block;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  background-color: var(--palette-5);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0.125rem var(--palette-0);
+  cursor: pointer;
+}
+
+.thumb:hover {
+  background-color: var(--palette-6);
+}
+
+.thumb:focus-visible {
+  outline: 0.125rem solid var(--focus);
+  outline-offset: 0.125rem;
+}

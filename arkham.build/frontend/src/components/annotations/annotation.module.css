@@ -1,0 +1,49 @@
+.annotation {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--palette-point-five);
+  border: 1px solid var(--color-link);
+  border-radius: var(--rounded);
+
+  &.sm {
+    font-size: var(--text-sm);
+  }
+}
+
+.annotation > * + * {
+  margin-top: 0.25rem;
+}
+
+.header {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: flex-start;
+  align-items: center;
+  line-height: 1;
+}
+
+.icon {
+  flex: 0 0 auto;
+  color: var(--color-link);
+  fill: var(--color-link);
+}
+
+.content {
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+
+.content textarea {
+  width: 100%;
+  border: 1px solid var(--palette-2);
+}

@@ -1,0 +1,165 @@
+.deck-tools {
+  animation: fadeIn 0.5s;
+  min-height: 32rem;
+}
+
+.deck-tools > * + * {
+  margin-top: 0.75rem;
+}
+
+.charts-wrap {
+  display: flex;
+  flex-wrap: wrap;
+
+  & > * {
+    width: 50%;
+  }
+}
+
+.tools-title {
+  line-height: inherit;
+  font-size: var(--text-xl);
+}
+
+.chart-container {
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  & svg {
+    overflow: visible;
+  }
+}
+
+.skill-icon-label {
+  font-size: 1.5rem;
+}
+
+.chart-title {
+  font-size: var(--text-lg);
+  margin-inline: auto;
+  margin-bottom: 0.375rem;
+  text-align: center;
+}
+
+.chart-tooltip {
+  background-color: var(--palette-1);
+  border: 1px solid var(--palette-2);
+  padding: 0.375rem;
+  font-family: var(--font-family-ui);
+  font-size: var(--text-small);
+  line-height: 1rem;
+  color: var(--text);
+  border-radius: var(--rounded);
+}
+
+.table-container {
+  max-height: 330px;
+  width: 100%;
+}
+
+.table-container thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--palette-2);
+  padding: 0.375rem;
+}
+
+.table :where(th, td) {
+  padding: 0.375rem;
+  text-align: left;
+}
+
+.table :where(th) {
+  background-color: var(--palette-1);
+  color: var(--text-white);
+  font-weight: bold;
+  border-bottom: 1px solid var(--palette-2);
+}
+
+.table :where(tr:not(.open):hover) {
+  background-color: var(--palette-1);
+}
+
+.table :where(th, td):not(:last-child) {
+  border-right: 1px solid var(--palette-2);
+}
+
+.table tr:not(:last-child) {
+  border-bottom: 1px solid var(--palette-2);
+}
+
+.trait-chart-column-trait {
+  width: 100%;
+}
+
+td.trait-chart-column-trait {
+  padding: 0;
+}
+
+.trait-chart-title {
+  display: flex;
+  background: none;
+  width: 100%;
+  justify-content: flex-start;
+  font-size: var(--text-small);
+  padding: 0.375rem;
+  gap: 0.375rem;
+}
+
+.trait-chart-column-count {
+  padding-right: 0.75rem;
+  text-align: right;
+  vertical-align: baseline;
+}
+
+.trait {
+  font-style: italic;
+  font-family: var(--font-family-content);
+
+  &::after {
+    content: ".";
+  }
+}
+
+.trait-chart-item-details-list {
+  margin: 0.375rem;
+}
+
+.trait-tooltip {
+  padding: 0.125rem;
+}
+
+.trait-tooltip > * + * {
+  margin-top: 0.125rem;
+}
+
+@media screen and (max-width: 75rem) {
+  .chart-container {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 52rem) {
+  .deck-tools {
+    grid-column: sidebar / filters;
+    height: calc(100% - 0.5rem);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

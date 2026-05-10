@@ -1,0 +1,161 @@
+.collection-label {
+  font-size: var(--text-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.container {
+  border: 0;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.cycles {
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+
+  @media screen and (min-width: 40rem) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media screen and (min-width: 66rem) {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.cycle-header-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.position {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cycle-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0.5rem;
+}
+
+.cycle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.cycle-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+
+  & button:hover {
+    color: var(--palette-5);
+  }
+}
+
+.cycle-actions > * {
+  flex: 0 0 auto;
+}
+
+.cycle-counts {
+  margin-top: 0.5rem;
+}
+
+.cycle-counts-title {
+  font-size: var(--text-sm);
+}
+
+.cycle-counts > * + * {
+  margin-top: 0.5rem;
+}
+
+.packs {
+  list-style: none;
+}
+
+.pack + .pack {
+  margin-top: 0.25rem;
+}
+
+.pack {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  padding: 0.25rem;
+  border-radius: var(--rounded);
+}
+
+.pack-label {
+  display: block;
+  flex: 1 1 auto;
+  font-size: var(--text-sm);
+}
+
+.pack-name {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pack-quantity-input {
+  max-width: 2.5rem;
+  padding: 0.25rem;
+}
+
+.pack-checkbox {
+  width: 100%;
+}
+
+.collection-counts {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--text-sm);
+}
+
+.collection-count {
+  text-align: center;
+  background: var(--palette-1);
+  padding: 0.25rem;
+  border-radius: var(--rounded);
+  min-width: 6ch;
+}
+
+.chapter-header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.chapter-title {
+  display: inline-block;
+  font-size: var(--text-lg);
+  border-bottom: 1px solid var(--palette-4);
+}
+
+.chapter + .chapter {
+  margin-top: 1rem;
+}
+
+.chapter:not(:last-child) {
+  border-bottom: 1px solid var(--palette-1);
+  padding-bottom: 1rem;
+}
+
+.chapter > * + * {
+  margin-top: 1rem;
+}
