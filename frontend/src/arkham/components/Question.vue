@@ -4,6 +4,7 @@ import { chaosTokenImage } from '@/arkham/types/ChaosToken';
 import { useI18n } from 'vue-i18n';
 import { useDebouncedRef } from '@/composeable/debouncedRef';
 import { handleEmbeddedI18n } from '@/arkham/i18n';
+import { formatCost } from '@/arkham/cost';
 import { choiceRequiresModal, MessageType, CardLabel, ChaosTokenLabel } from '@/arkham/types/Message';
 import { computed, inject, ref, watch, onMounted } from 'vue';
 import { imgsrc, formatContent } from '@/arkham/helpers';
@@ -115,6 +116,10 @@ const paymentAmountsLabel = computed(() => {
     return label(question.value.label)
   }
 
+  if (question.value?.tag === QuestionType.PAY_COST_QUESTION && question.value.question.tag === QuestionType.CHOOSE_PAYMENT_AMOUNTS) {
+    return label(t('label.cost.pay', { cost: formatCost(question.value.cost, t) }))
+  }
+
   return null
 })
 
@@ -133,6 +138,10 @@ const amountsLabel = computed(() => {
 const paymentAmountsChoices = computed(() => {
   if (question.value?.tag === QuestionType.CHOOSE_PAYMENT_AMOUNTS) {
     return question.value.paymentAmountChoices
+  }
+
+  if (question.value?.tag === QuestionType.PAY_COST_QUESTION && question.value.question.tag === QuestionType.CHOOSE_PAYMENT_AMOUNTS) {
+    return question.value.question.paymentAmountChoices
   }
 
   return []
@@ -481,7 +490,7 @@ const filteredCards = computed<{ choice: CardLabel; index: number }[]>(() => {
 
     <div v-if="cardLabels.length > 0" class="cardLabels">
       <div v-if="cardLabels.length > 10" class="filter">
-        <input v-model="cardFilter" @keydown.stop placeholder="Filter" />
+        <input v-model="cardFilter" @keydown.stop :placeholder="$t('questionFilter.filter')" />
       </div>
       <template v-for="{choice, index} in filteredCards" :key="index">
         <CardImage v-if="choice.flippable" :card="flippableCard(choice.cardCode)" />
@@ -546,6 +555,15 @@ const filteredCards = computed<{ choice: CardLabel; index: number }[]>(() => {
         <img :src="questionImage" class="card" />
       </div>
 
+      <DropDown @choose="choose" :options="question.question.options" />
+    </div>
+
+    <div class="question-label dropdown" v-if="question && question.tag === 'PayCostQuestion' && question.question.tag === 'DropDown'">
+      <div class="question-image" v-if="questionImage">
+        <img :src="questionImage" class="card" />
+      </div>
+
+      <legend>{{ t('label.cost.pay', { cost: formatCost(question.cost, t) }) }}</legend>
       <DropDown @choose="choose" :options="question.question.options" />
     </div>
 

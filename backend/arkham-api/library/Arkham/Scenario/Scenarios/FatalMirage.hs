@@ -137,8 +137,8 @@ instance RunMessage FatalMirage where
       partners <- getRemainingPartners
       unless (null partners) do
         chooseOneM iid do
-          questionLabeled "Choose a partner for this scenario"
-          labeled "Do not take a partner" nothing
+          questionLabeledI "choosePartnerForScenario"
+          labeledI "doNotTakeAPartner" nothing
           for_ partners \partner -> do
             inPlay <- selectAny $ assetIs partner.cardCode
             unless inPlay do
@@ -236,9 +236,9 @@ instance RunMessage FatalMirage where
             else do
               chooseOneM iid do
                 unless atPrison do
-                  labeled "Move to the Prison of Memories" $ moveTo_ Tablet iid Locations.prisonOfMemories
+                  labeled' "moveToPrisonOfMemories" $ moveTo_ Tablet iid Locations.prisonOfMemories
                 whenCanShuffleIn iid tekelili do
-                  labeled "Shuffle the top card of the Tekeli-li deck into your deck without looking at it."
+                  labeled' "shuffleTekeliliIntoYourDeck"
                     $ addTekelili iid tekelili
         ElderThing ->
           chooseSelectM iid (EnemyWithTrait Eidolon) \enemy -> placeDoom ElderThing enemy 1

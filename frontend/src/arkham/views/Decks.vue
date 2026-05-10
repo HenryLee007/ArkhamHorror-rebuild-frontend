@@ -8,6 +8,9 @@ import Deck from '@/arkham/components/DeckRow.vue';
 import DeckToolbar from '@/arkham/components/DeckToolbar.vue';
 import PrimaryButton from '@/components/PrimaryButton.vue';
 import { useToast } from "vue-toastification";
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const allDecks = ref<Arkham.Deck[]>([])
 const deleteId = ref<string | null>(null)
@@ -15,12 +18,14 @@ const toast = useToast()
 const showNewDeck = ref(false)
 const searchText = ref('')
 const sortBy = ref<'name' | 'class'>('name')
-const filterClasses = ref<string[]>([])
+type DeckClass = 'guardian' | 'seeker' | 'rogue' | 'mystic' | 'survivor' | 'neutral'
 
-const CLASS_ORDER: Record<string, number> = {
+const filterClasses = ref<DeckClass[]>([])
+
+const CLASS_ORDER: Record<DeckClass, number> = {
   guardian: 0, seeker: 1, rogue: 2, mystic: 3, survivor: 4, neutral: 5
 }
-const allClasses = ["guardian", "seeker", "rogue", "mystic", "survivor", "neutral"]
+const allClasses: DeckClass[] = ["guardian", "seeker", "rogue", "mystic", "survivor", "neutral"]
 
 async function addDeck(d: Arkham.Deck) {
   allDecks.value.push(d)
@@ -66,7 +71,7 @@ const decks = computed(() => {
 
 async function sync(deck: Arkham.Deck) {
   syncDeck(deck.id).then(() => {
-    toast.success("牌组同步成功", { timeout: 3000 })
+    toast.success(t('deckSyncedSuccessfully'), { timeout: 3000 })
   })
 }
 </script>
@@ -75,8 +80,8 @@ async function sync(deck: Arkham.Deck) {
   <div class="page-container">
     <div id="decks">
       <header class="decks-header">
-        <h2>我的牌组</h2>
-        <PrimaryButton :label="showNewDeck ? '取消' : '新建牌组'" :danger="showNewDeck" @click="showNewDeck = !showNewDeck" />
+        <h2>{{ $t('decks') }}</h2>
+        <PrimaryButton :label="showNewDeck ? t('cancel') : t('newDeck')" :danger="showNewDeck" @click="showNewDeck = !showNewDeck" />
       </header>
 
       <div v-if="showNewDeck" class="new-deck-panel">
@@ -91,7 +96,7 @@ async function sync(deck: Arkham.Deck) {
       />
 
       <div v-if="decks.length === 0" class="empty-state">
-        <p>没有匹配筛选条件的牌组。</p>
+        <p>{{ $t('noDecksMatchFilters') }}</p>
       </div>
       <div v-else class="deck-grid">
         <Deck
@@ -105,7 +110,7 @@ async function sync(deck: Arkham.Deck) {
 
       <Prompt
         v-if="deleteId"
-        prompt="确定要删除这个牌组吗？"
+        :prompt="t('areYouSureDeleteDeck')"
         :yes="deleteDeckEvent"
         :no="() => deleteId = null"
       />
