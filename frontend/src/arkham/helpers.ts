@@ -250,17 +250,45 @@ export function localizeArkhamDBBaseUrl() {
   return baseUrl.origin;
 }
 
+export function isSyncableDeckUrl(url: string): boolean {
+  return /^https:\/\/(?:[a-zA-Z0-9-]+\.)?arkhamdb\.com\/api\/public\/deck(list)?\/[^/]+/.test(url) ||
+    /^https:\/\/api\.arkham\.build\/v1\/public\/share\/[^/]+/.test(url)
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function parseDeckMeta(rawMeta: unknown): Record<string, unknown> {
+  if (typeof rawMeta === 'string') {
+    try {
+      const parsed = JSON.parse(rawMeta)
+      return isRecord(parsed) ? parsed : {}
+    } catch (_e) {
+      return {}
+    }
+  }
+
+  return isRecord(rawMeta) ? rawMeta : {}
+}
+
+function asSlotRecord(value: unknown): Record<string, number> {
+  if (!isRecord(value)) return {}
+
+  return Object.entries(value).reduce<Record<string, number>>((acc, [key, amount]) => {
+    if (typeof amount === 'number') acc[key] = amount
+    return acc
+  }, {})
+}
+
 export function processArkhamBuildDeck<T extends { slots?: Record<string, number> }>(
   data: T,
   url: string,
 ): T & { slots: Record<string, number>; url: string } {
-  const rawMeta = (data as { meta?: unknown }).meta
-  const meta: { hidden_slots?: Record<string, unknown> } =
-    typeof rawMeta === 'string' ? JSON.parse(rawMeta) : {}
-  const { slots: hiddenSlotCards, ...hiddenRest } = (meta.hidden_slots ?? {}) as {
-    slots?: Record<string, number>
-    [key: string]: unknown
-  }
+  const meta = parseDeckMeta((data as { meta?: unknown }).meta)
+  const hiddenSlots = isRecord(meta.hidden_slots) ? meta.hidden_slots : {}
+  const { slots: rawHiddenSlotCards, ...hiddenRest } = hiddenSlots
+  const hiddenSlotCards = asSlotRecord(rawHiddenSlotCards)
   const mergedSlots = { ...(data.slots ?? {}), ...(hiddenSlotCards ?? {}) }
   return { ...data, ...hiddenRest, slots: mergedSlots, url }
 }

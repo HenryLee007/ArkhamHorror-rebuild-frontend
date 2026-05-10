@@ -29,12 +29,12 @@ async function loadDeck() {
       const data = await response.json()
       const deckData = processArkhamBuildDeck(data, deckUrl.value)
       if (Object.keys(deckData.slots).length === 0) {
-        error.value = "Is this deck empty?"
+        error.value = "这个牌组是空的吗？"
       } else{
         model.value = deckData
       }
     } else {
-      error.value = "Could not find deck, please make sure you have created a public share."
+      error.value = "找不到牌组，请确认你已创建公开分享。"
     }
   }
 }

@@ -76,7 +76,7 @@ function loadDeckFromFile(e: Event) {
         }
 
       } else {
-        investigatorError.value = `${data.investigator_name} is not yet implemented, please use a different deck ${data}`
+        investigatorError.value = `${data.investigator_name} 尚未实装，请使用其他牌组 ${data}`
       }
       deckId.value = data.id.toString()
       deckName.value = data.name
@@ -106,7 +106,7 @@ async function loadDeck() {
     maybeSetPortrait(invCode)
   } else {
     investigatorError.value =
-      `${dl.investigator_name} is not yet implemented, please use a different deck ${JSON.stringify(dl)}`
+      `${dl.investigator_name} 尚未实装，请使用其他牌组 ${JSON.stringify(dl)}`
   }
 
   deckId.value = String(dl.id)
@@ -135,7 +135,7 @@ async function runValidations() {
       const key = normalizeCode(e.contents)
       const hit = cardByCode.value.get(key)
       if (hit) return hit.xp ? `${hit.name} (${hit.xp})` : hit.name
-      return `Unknown card: ${e.contents}`
+      return `未知卡牌：${e.contents}`
     })
   }
 }
@@ -169,7 +169,7 @@ async function createDeck() {
       const key = normalizeCode(e.contents)
       const hit = cardByCode.value.get(key)
       if (hit) return hit.xp ? `${hit.name} (${hit.xp})` : hit.name
-      return 'Unknown card'
+      return '未知卡牌'
     })
   }
 }
@@ -185,21 +185,21 @@ async function createDeck() {
         <input v-if="investigator" v-model="deckName" />
         <div v-if="!alwaysSave" class="save-option" :class="{ active: saveDeck }" @click="saveDeckToggle = !saveDeckToggle" role="checkbox" :aria-checked="saveDeck">
           <div class="save-option-body">
-            <span class="save-option-title">Save to Deck List</span>
-            <span class="save-option-desc">Keep this deck available for future campaigns</span>
+            <span class="save-option-title">保存到牌组列表</span>
+            <span class="save-option-desc">保留此牌组供后续战役使用</span>
           </div>
           <div class="save-option-toggle" :class="{ on: saveDeck }">
             <div class="save-option-thumb" />
           </div>
         </div>
-        <button :disabled="!valid" @click.prevent="createDeck" class="primary-action">{{ alwaysSave ? 'Save' : saveDeck ? 'Save &amp; Use' : 'Use Without Saving' }}</button>
+        <button :disabled="!valid" @click.prevent="createDeck" class="primary-action">{{ alwaysSave ? '保存' : saveDeck ? '保存并使用' : '不保存直接使用' }}</button>
       </div>
     </div>
     <div class="errors" v-if="investigatorError">
       {{investigatorError}}
     </div>
     <div class="errors" v-if="errors.length > 0">
-      <p>Could not create deck, the following cards are unimplemented:</p>
+      <p>无法创建牌组，以下卡牌尚未实现：</p>
       <ul>
         <li class="error" v-for="(error, idx) in errors" :key="idx">
           {{error}}

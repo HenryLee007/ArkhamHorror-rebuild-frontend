@@ -66,7 +66,7 @@ const decks = computed(() => {
 
 async function sync(deck: Arkham.Deck) {
   syncDeck(deck.id).then(() => {
-    toast.success("Deck synced successfully", { timeout: 3000 })
+    toast.success("牌组同步成功", { timeout: 3000 })
   })
 }
 </script>
@@ -75,8 +75,8 @@ async function sync(deck: Arkham.Deck) {
   <div class="page-container">
     <div id="decks">
       <header class="decks-header">
-        <h2>Decks</h2>
-        <PrimaryButton :label="showNewDeck ? 'Cancel' : 'New Deck'" :danger="showNewDeck" @click="showNewDeck = !showNewDeck" />
+        <h2>我的牌组</h2>
+        <PrimaryButton :label="showNewDeck ? '取消' : '新建牌组'" :danger="showNewDeck" @click="showNewDeck = !showNewDeck" />
       </header>
 
       <div v-if="showNewDeck" class="new-deck-panel">
@@ -91,7 +91,7 @@ async function sync(deck: Arkham.Deck) {
       />
 
       <div v-if="decks.length === 0" class="empty-state">
-        <p>No decks match your filters.</p>
+        <p>没有匹配筛选条件的牌组。</p>
       </div>
       <div v-else class="deck-grid">
         <Deck
@@ -105,7 +105,7 @@ async function sync(deck: Arkham.Deck) {
 
       <Prompt
         v-if="deleteId"
-        prompt="Are you sure you want to delete this deck?"
+        prompt="确定要删除这个牌组吗？"
         :yes="deleteDeckEvent"
         :no="() => deleteId = null"
       />

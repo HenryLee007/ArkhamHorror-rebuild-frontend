@@ -4,13 +4,25 @@ import { capitalize } from '@/arkham/helpers'
 withDefaults(defineProps<{
   compact?: boolean
   searchPlaceholder?: string
-}>(), { compact: false, searchPlaceholder: 'Search decks…' })
+}>(), { compact: false, searchPlaceholder: '搜索牌组…' })
 
 const allClasses = ["guardian", "seeker", "rogue", "mystic", "survivor", "neutral"]
+const classLabels: Record<string, string> = {
+  guardian: '守卫者',
+  seeker: '探求者',
+  rogue: '流浪者',
+  mystic: '潜修者',
+  survivor: '求生者',
+  neutral: 'Neutral',
+}
 
 const search = defineModel<string>('search', { default: '' })
 const filterClasses = defineModel<string[]>('filterClasses', { default: () => [] })
 const sortBy = defineModel<'name' | 'class'>('sortBy', { default: 'name' })
+
+function classLabel(c: string) {
+  return classLabels[c] ?? capitalize(c)
+}
 
 function toggleClass(c: string) {
   const idx = filterClasses.value.indexOf(c)
@@ -28,11 +40,11 @@ function toggleClass(c: string) {
         :key="iclass"
         class="class-pill"
         :class="{ [iclass]: filterClasses.includes(iclass), active: filterClasses.includes(iclass) }"
-        :title="capitalize(iclass)"
+        :title="classLabel(iclass)"
         @click.prevent="toggleClass(iclass)"
       >
         <span :class="`${iclass}-icon`"></span>
-        <span v-if="!compact" class="pill-label">{{ capitalize(iclass) }}</span>
+        <span v-if="!compact" class="pill-label">{{ classLabel(iclass) }}</span>
       </button>
     </div>
     <div class="toolbar-right">
@@ -43,8 +55,8 @@ function toggleClass(c: string) {
         type="search"
       />
       <select v-model="sortBy" class="sort-select">
-        <option value="name">Sort: Name</option>
-        <option value="class">Sort: Class</option>
+        <option value="name">排序：名称</option>
+        <option value="class">排序：职业</option>
       </select>
     </div>
   </div>

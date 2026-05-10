@@ -130,6 +130,44 @@ docker compose --profile fetch-images run --rm fetch-images all
 Images are stored in `frontend/public/img/` and mounted into the container.
 After fetching, run `docker compose restart web` to pick them up.
 
+#### arkham.build 首次部署本地卡图
+
+本仓库会把 arkham.build 的卡图请求代理到同域的 `/build-assets`。首次部署前，先把当前项目已有的卡图导出到桌面目录 `arkham-build-assets`：
+
+```powershell
+pwsh .\scripts\export-arkham-build-assets.ps1
+```
+
+脚本会读取 `frontend/public/img/arkham/cards/*.avif`，生成下面的目录结构：
+
+```text
+C:\Users\<you>\Desktop\arkham-build-assets\
+    optimized\01001.avif
+    optimized\01001b.avif
+    back_player.jpg
+    back_encounter.jpg
+    back_card.jpg
+    back_the_longest_night.jpg
+    back_artifact.jpg
+    back_cthulhu_deck.jpg
+```
+
+如果卡图不在仓库默认目录，可以指定来源和目标目录：
+
+```powershell
+pwsh .\scripts\export-arkham-build-assets.ps1 `
+    -SourcePath D:\backup\arkham\cards `
+    -DestinationPath C:\Users\$env:USERNAME\Desktop\arkham-build-assets
+```
+
+导出完成后启动或重建容器：
+
+```powershell
+docker compose up -d web arkham-build-web
+```
+
+`docker-compose.yml` 默认把 `..\arkham-build-assets` 挂载到 web 容器的 `/opt/arkham/build-assets`，nginx 通过 `/build-assets/` 提供给 arkham.build 使用。换机器迁移时，只需要把桌面上的 `arkham-build-assets` 整个目录一起带走。
+
 #### 从外部图片包导入（无需下载 2.9GB）
 
 如果你已经从别处（NAS / 朋友 / 移动硬盘 / 备份）拿到了一份完整的 `img/` 图片目录，可以直接导入，跳过 CDN 或 S3 下载。

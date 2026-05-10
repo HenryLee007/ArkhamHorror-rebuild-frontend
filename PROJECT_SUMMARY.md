@@ -23,10 +23,12 @@
 | 后端 | Haskell（GHC 9.12.2，Stack nightly-2025-12-30）+ Yesod Web Framework |
 | 后端关键库 | Persistent（PostgreSQL）、yesod-websockets、hedis（Redis）、jose（JWT）、fast-logger、Bugsnag、OpenTelemetry |
 | 数据库 | PostgreSQL 14.6，JSONB 存储游戏状态 |
+| arkham.build sidecar | 本地源码 `..\arkham.build-main\arkham.build-main`，Docker Compose 下提供 `/build` 前端与 `/build-api` API |
 | 迁移工具 | Sqitch（`migrations/` 目录） |
 | 消息/房间 | 本地 MVar + WebSocket；分布式用 Redis Pub/Sub（可选） |
 | 部署 | Docker + docker-compose / Kamal / Kubernetes（DigitalOcean）+ Nginx |
 | CDN 资源 | `https://assets.arkhamhorror.app`（图片 ~2.9GB，可本地替换） |
+| arkham.build 卡图 | 默认从同域 `/build-assets` 读取，宿主机目录为仓库同级 `..\arkham-build-assets` |
 
 ---
 
@@ -95,8 +97,9 @@ ArkhamHorror-rebuild-frontend/
 │   ├── fetch-assets.sh          # 从 S3/CDN 拉取图片（fetch-images 容器使用）
 │   ├── deploy-frontend.ps1      # ★ Windows：本地 build 后热推到 web 容器（无需重建镜像）
 │   ├── import-images.ps1        # ★ Windows：从 NAS/本地目录导入 img 包（跳过 CDN 下载）
+│   ├── export-arkham-build-assets.ps1 # ★ Windows：导出 arkham.build 本地卡图到桌面 arkham-build-assets
 │   └── ...
-├── docker-compose.yml           # db:5433 + web:3000 + fetch-images profile
+├── docker-compose.yml           # db:5433 + web:3000 + arkham.build sidecar + fetch-images profile
 ├── Dockerfile                   # 多阶段：Node 构建前端 → Ubuntu+GHC 构建后端
 ├── Makefile                     # 部署/镜像/同步常用命令
 ├── start.sh                     # 容器内：启动 arkham-api + Nginx
@@ -188,6 +191,11 @@ stack test --flag arkham-horror-backend:library-only --flag arkham-horror-backen
   ```powershell
   robocopy .\frontend\public\img C:\Users\$env:USERNAME\Desktop\arkham-horror-images\img /E /MT:16 /XF *.tmp /NFL /NDL
   ```
+- **导出 arkham.build 本地卡图**（供 `/build-assets` 离线使用）：
+  ```powershell
+  pwsh .\scripts\export-arkham-build-assets.ps1
+  ```
+  内部流程：读取 `frontend/public/img/arkham/cards/*.avif` → 复制到桌面 `arkham-build-assets/optimized` → 复制 arkham.build 需要的卡背图。`docker-compose.yml` 默认将仓库同级 `..\arkham-build-assets` 挂载到 web 容器 `/opt/arkham/build-assets`。
 
 ---
 
@@ -200,12 +208,14 @@ stack test --flag arkham-horror-backend:library-only --flag arkham-horror-backen
 | **忘记密码 / 重置密码** | `views/PasswordReset.vue`、`views/UpdatePassword.vue` | `Base/Api/Handler/PasswordReset.hs`、`Entity/PasswordReset.hs`、迁移 `create_password_resets.sql` |
 | **游戏列表、进入游戏、加入房间** | [arkham/api.ts](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/arkham/api.ts) (`fetchGames`/`fetchGame`/`fetchJoinGame`) | `Api/Handler/Arkham/Games.hs`、`PendingGames.hs` |
 | **卡牌展示、卡牌定义** | `frontend/public/cards_*.json`（静态）、[stores/dbCards.ts](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/stores/dbCards.ts)、`arkham/components/*Card*` | 后端 `Api/Handler/Arkham/Cards.hs`、`library/Arkham/Card/`、`backend/cards-discover/` |
+| **arkham.build 卡牌浏览 / 组卡 sidecar** | `docker-compose.yml` 中 `arkham-build-*` 服务、`prod.nginxconf` 的 `/build` `/build-api` `/build-assets`、`frontend/src/components/NavBar.vue` 卡牌导航 | 本地外部源码 `..\arkham.build-main\arkham.build-main`；默认语言/图片源在其 `frontend/src/utils/i18n.ts`、`constants.ts`、`card-utils.ts`、`.env.example` |
 | **卡组导入/校验** | `arkham/api.ts` (`newDeck`/`fetchDecks`/`fetchDeck`)、相关 Vue 组件 | `Api/Handler/Arkham/Decks.hs`、`backend/validate/`、`Entity/Arkham/ArkhamDBDecklist.hs` |
+| **arkham.build 组完后导入当前项目** | `frontend/src/arkham/views/ArkhamBuildImport.vue`、`frontend/src/arkham/routes/index.ts` 的 `/decks/import/arkham-build` | arkham.build 本地桥接写入同源 `localStorage` key `arkham-build-import-payload`；导入后复用 `validateDeck` / `newDeck` |
 | **游戏状态不同步 / 回放 / 撤销** | `arkham/api.ts` (`fetchGameReplay`/`undo*`)、游戏视图组件 | `Api/Handler/Arkham/Replay.hs`、`Undo.hs`、`Shared.hs`、`Foundation.hs` (Room/Subscriber)、`Entity/Arkham/Step.hs` |
 | **WebSocket 断连 / 广播丢失** | 浏览器 DevTools Network WS | `Foundation.hs` 中 `Room`、`Subscriber`、`appGameRooms`、`roomQueueBound`、`gameStream`；Redis `REDIS_CONN` 环境变量 |
 | **接口 4xx/5xx 报错** | axios 调用点（`arkham/api.ts`、`stores/user.ts`） | 后端对应 `Api/Handler/...`；全局异常 → Bugsnag 中间件 `Application.hs`；查容器日志 |
 | **数据库写入失败 / 约束冲突** | 对应 Handler 的 `runDB`/`insert`/`update` 调用 | `Entity/` 实体定义、`migrations/deploy/*.sql`；Postgres 日志；`make db-unstick` |
-| **图片加载失败 / 404** | [App.vue](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/App.vue)（AVIF 检查）、[arkham/helpers.ts](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/arkham/helpers.ts) (`checkImageExists`)、`stores/site_settings.ts`（ASSET_HOST） | `web-entrypoint.sh` 的 ASSET_HOST 自动探测；`image-manifest.json`；`scripts/fetch-assets.sh`；宿主机 `frontend/public/img` ↔ 容器 `/opt/arkham/src/frontend/dist/img` 为 **bind mount**；离线恢复 → `scripts/import-images.ps1` |
+| **图片加载失败 / 404** | [App.vue](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/App.vue)（AVIF 检查）、[arkham/helpers.ts](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/src/arkham/helpers.ts) (`checkImageExists`)、`stores/site_settings.ts`（ASSET_HOST） | 当前项目图片：`web-entrypoint.sh` 的 ASSET_HOST 自动探测、`image-manifest.json`、`scripts/fetch-assets.sh`、`scripts/import-images.ps1`；arkham.build 图片：`/build-assets/optimized/*.avif`，宿主机 `..\arkham-build-assets`，导出脚本 `scripts/export-arkham-build-assets.ps1` |
 | **本地改完前端想立刻生效**（Windows Docker） | `scripts/deploy-frontend.ps1` | [vite.config.js](file:///c:/Users/29298/Desktop/ArkhamHorror-rebuild-frontend/frontend/vite.config.js) 的 `build.copyPublicDir: false`；容器名 `arkhamhorror-rebuild-frontend-web-1` |
 | **管理后台 / 房间监控** | `views/Admin.vue`、`views/Rooms.vue`、`components/admin/` | `Api/Handler/Arkham/Admin/Metrics.hs`、路由中的 `/api/v1/admin/*` |
 | **多语言文案缺失** | `frontend/src/locales/messages.ts` 及各语言目录；`arkham/i18n.ts` | 卡牌翻译在 `cards_<lang>.json` |
@@ -249,9 +259,13 @@ Home / NewGame 组件
 ### 7.3 整体调用链
 ```
 浏览器 (Vue + axios + WS)
-  ↓ /api/* · /health
+  ↓ /api/* · /health · /build/* · /build-api/* · /build-assets/*
 Nginx (prod.nginxconf) -- 同容器
-  ↓ 3002
+  ├─ /api, /health → 3002
+  ├─ /build → arkham-build-web:3000
+  ├─ /build-api → arkham-build-api:8686
+  ├─ /build-assets → /opt/arkham/build-assets
+  ↓
 arkham-api (Yesod Warp)
   ├─ routes → Handler
   ├─ Persistent (SqlBackend) → PostgreSQL (JSONB)
@@ -273,9 +287,10 @@ arkham-api (Yesod Warp)
 4. **`backend/arkham-api/config/routes`** — 增删路由必须同步 Handler 与 `Application.hs` 分发（Yesod TH 生成）。
 5. **`frontend/public/cards_*.json`** — 由卡牌抓取脚本生成（待确认脚本位置，可能在 `backend/cards-discover/` 或外部），13 种语言，不得手改。
 6. **锁文件**：`backend/stack.yaml.lock`、`backend/cabal.project.local`、`flake.lock`、`frontend/package-lock.json`。
-7. **Dockerfile、`prod.nginxconf`、`web-entrypoint.sh`、`start.sh`** — 生产部署链路，改动需同步验证 Docker Compose、Kamal、K8s。
+7. **Dockerfile、`docker-compose.yml`、`prod.nginxconf`、`web-entrypoint.sh`、`start.sh`** — 生产/本地部署链路，改动需同步验证 Docker Compose、Kamal、K8s。`prod.nginxconf` 还承载 arkham.build 的 `/build`、`/build-api`、`/build-assets` 路由。
 8. **`terraform/` · `config/deploy.yml` · `infra/`** — 基础设施代码，改动有费用/可用性风险。
 9. **`frontend/vite.config.js` 中 `build.copyPublicDir: false`** — 2.6G 图片由 bind mount 接管，开启 copy 会在 `vite build` 期间试图拷贝 `public/img`，与 fetch-images 并发下载的 `.tmp` 冲突，导致 build 崩溃或产物爆胀到 2G+。
+10. **仓库同级 `..\arkham.build-main\arkham.build-main` 与 `..\arkham-build-assets`** — arkham.build sidecar 与本地卡图目录，不属于当前仓库 git 管理；迁移机器时需要一起带走，并保持 docker-compose 中的相对路径可用。
 
 ### 安全可改（普通开发对象）
 - `frontend/src/views/` · `frontend/src/components/` · `frontend/src/arkham/components/`（UI）

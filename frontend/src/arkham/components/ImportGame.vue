@@ -119,7 +119,7 @@ const canSubmit = computed(() => {
   <div class="import-game box">
     <div class="file-section">
       <label class="file-label">
-        <span>{{ selectedFile ? selectedFile.name : 'Click to choose export file…' }}</span>
+        <span>{{ selectedFile ? selectedFile.name : '点击选择导出文件…' }}</span>
         <input
           type="file"
           accept="application/json"

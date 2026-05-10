@@ -2,19 +2,32 @@ import CampaignLog from '@/arkham/views/CampaignLog.vue';
 import Game from '@/arkham/views/Game.vue';
 import Deck from '@/arkham/views/Deck.vue';
 import Decks from '@/arkham/views/Decks.vue';
-import Cards from '@/arkham/views/Cards.vue';
+import ArkhamBuildImport from '@/arkham/views/ArkhamBuildImport.vue';
 import JoinGame from '@/arkham/views/JoinGame.vue';
 import ClaimSeat from '@/arkham/views/ClaimSeat.vue';
 import ReplayGame from '@/arkham/views/ReplayGame.vue';
 import NewCampaign from '@/arkham/views/NewCampaign.vue';
 import { RouteLocationNormalized } from 'vue-router';
 
+const ArkhamBuildRedirect = { template: '<div />' }
+
 export default [
   {
     path: '/cards',
     name: 'Cards',
-    component: Cards,
+    component: ArkhamBuildRedirect,
+    beforeEnter: () => {
+      window.location.assign('/build/browse')
+      return false
+    },
     meta: { requiresAuth: true, title: "Arkham Horror: Cards" },
+    props: true,
+  },
+  {
+    path: '/decks/import/arkham-build',
+    name: 'ArkhamBuildImport',
+    component: ArkhamBuildImport,
+    meta: { requiresAuth: true, title: "Arkham Horror: Import Deck" },
     props: true,
   },
   {
@@ -28,7 +41,7 @@ export default [
     path: '/decks',
     name: 'Decks',
     component: Decks,
-    meta: { requiresAuth: true, title: "Arkham Horror: Decks" },
+    meta: { requiresAuth: true, title: "Arkham Horror: 我的牌组" },
     props: true,
   },
   {

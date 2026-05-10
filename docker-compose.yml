@@ -47,6 +47,77 @@ services:
       - db
     volumes:
       - ./frontend/public/img:/opt/arkham/src/frontend/dist/img
+      - ../arkham-build-assets:/opt/arkham/build-assets:ro
+  arkham-build-db:
+    image: postgres:18-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: api-arkham-build
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d api-arkham-build"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - arkham_build_pgdata:/var/lib/postgresql
+  arkham-build-ingest:
+    build:
+      context: ../arkham.build-main/arkham.build-main
+      dockerfile: backend/Dockerfile
+    depends_on:
+      arkham-build-db:
+        condition: service_healthy
+    environment: &arkham-build-env
+      ADMIN_API_KEY: admin_key
+      CORS_ORIGINS: http://localhost:3000
+      HOSTNAME: localhost
+      INGEST_JSON_DATA_REPO: Kamalisk/arkhamdb-json-data@master
+      INGEST_TABOO_DATA_REPO: zzorba/arkham-cards-data@master
+      INGEST_URL_ARKHAMDB_DECKLISTS: disabled
+      METADATA_LOCALES: en,zh-cn
+      NODE_ENV: production
+      PORT: 8686
+      POSTGRES_DB: api-arkham-build
+      POSTGRES_HOST: arkham-build-db
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      DATABASE_URL: postgres://postgres:postgres@arkham-build-db:5432/api-arkham-build?sslmode=disable
+      DBMATE_MIGRATIONS_DIR: backend/src/db/migrations
+      DBMATE_SCHEMA_FILE: backend/src/db/schema.sql
+    command: ["sh", "-c", "dbmate up && npm run ingest:json-data -w backend"]
+    restart: "no"
+  arkham-build-api:
+    build:
+      context: ../arkham.build-main/arkham.build-main
+      dockerfile: backend/Dockerfile
+    depends_on:
+      arkham-build-ingest:
+        condition: service_completed_successfully
+    environment: *arkham-build-env
+    command: ["sh", "-c", "dbmate up && npm run start -w backend"]
+  arkham-build-web:
+    image: node:24-alpine
+    working_dir: /app
+    depends_on:
+      arkham-build-api:
+        condition: service_started
+    environment:
+      VITE_API_LEGACY_URL: /build-legacy-disabled
+      VITE_API_URL: /build-api
+      VITE_ARKHAMDB_BASE_URL: https://arkhamdb.com
+      VITE_BASE_PATH: /build/
+      VITE_CARD_IMAGE_URL: /build-assets
+      VITE_GAME_IMPORT_URL: /#/decks/import/arkham-build
+      VITE_LOCAL_INTEGRATION: "true"
+      VITE_PAGE_NAME: arkham.build
+      VITE_SHOW_PREVIEW_BANNER: "false"
+    volumes:
+      - ../arkham.build-main/arkham.build-main:/app
+      - arkham_build_node_modules:/app/node_modules
+    command: ["sh", "-c", "find node_modules -mindepth 1 -maxdepth 1 -exec rm -rf {} + && npm ci --include=optional && npm run build -w frontend && npm run preview -w frontend -- --host 0.0.0.0 --port 3000"]
   fetch-images:
     profiles: ["fetch-images"]
     image: amazon/aws-cli
@@ -57,6 +128,8 @@ services:
     command: en
 volumes:
  pgdata:
+ arkham_build_pgdata:
+ arkham_build_node_modules:
 # Docker secret for Postgres password
 secrets:
   postgres_password:

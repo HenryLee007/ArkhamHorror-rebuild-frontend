@@ -26,7 +26,7 @@ async function logout() {
     <nav class="main-links">
       <router-link to="/" class="home-link">{{$t('nav.home')}}</router-link>
       <router-link v-if="currentUser" to="/decks" class="nav-link">{{$t('nav.myDecks')}}</router-link>
-      <router-link v-if="currentUser" to="/cards" class="nav-link">{{$t('nav.cards')}}</router-link>
+      <a v-if="currentUser" href="/build/browse" class="nav-link">{{$t('nav.cards')}}</a>
       <router-link v-if="currentUser" to="/about" class="nav-link">{{$t('nav.about')}}</router-link>
       <router-link v-if="currentUser && currentUser.admin" to="/admin" class="nav-link">{{$t('nav.admin')}}</router-link>
     </nav>
@@ -51,7 +51,7 @@ async function logout() {
 
     <div v-if="mobileOpen" class="mobile-menu" @click="mobileOpen = false">
       <router-link to="/decks">{{$t('nav.myDecks')}}</router-link>
-      <router-link to="/cards">{{$t('nav.cards')}}</router-link>
+      <a href="/build/browse">{{$t('nav.cards')}}</a>
       <router-link to="/about">{{$t('nav.about')}}</router-link>
       <router-link v-if="currentUser && currentUser.admin" to="/admin">{{$t('nav.admin')}}</router-link>
     </div>

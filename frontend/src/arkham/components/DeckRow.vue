@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { displayTabooId } from '@/arkham/taboo';
-import {imgsrc, localizeArkhamDBBaseUrl, investigatorClass} from '@/arkham/helpers';
+import {imgsrc, localizeArkhamDBBaseUrl, investigatorClass, isSyncableDeckUrl} from '@/arkham/helpers';
 import * as Arkham from '@/arkham/types/Deck'
 
 interface Props {
@@ -47,6 +47,8 @@ const deckClass = computed(() => {
 const tabooList = computed(() => {
   return props.deck.list.taboo_id ? displayTabooId(props.deck.list.taboo_id) : null
 })
+
+const canSync = computed(() => props.deck.url ? isSyncableDeckUrl(props.deck.url) : false)
 </script>
 
 <template>
@@ -55,16 +57,16 @@ const tabooList = computed(() => {
     <div class="deck-details">
       <div class="deck-main">
         <span class="deck-name">{{ deck.name }}</span>
-        <span v-if="tabooList" class="taboo-badge"><font-awesome-icon icon="book" /> Taboo: {{ tabooList }}</span>
+        <span v-if="tabooList" class="taboo-badge"><font-awesome-icon icon="book" /> 禁卡表：{{ tabooList }}</span>
       </div>
       <div class="deck-actions" @click.stop>
-        <a v-if="deck.url" class="action-btn" :href="deckUrlToPage(deck.url)" target="_blank" rel="noreferrer noopener" title="View on ArkhamDB">
+        <a v-if="deck.url" class="action-btn" :href="deckUrlToPage(deck.url)" target="_blank" rel="noreferrer noopener" title="在 ArkhamDB 查看">
           <font-awesome-icon icon="external-link" />
         </a>
-        <a v-if="deck.url && sync" class="action-btn" href="#" title="Sync deck" @click.prevent="sync">
+        <a v-if="deck.url && sync && canSync" class="action-btn" href="#" title="同步牌组" @click.prevent="sync">
           <font-awesome-icon icon="refresh" />
         </a>
-        <a v-if="markDelete" class="action-btn action-btn--delete" href="#" title="Delete deck" @click.prevent="markDelete">
+        <a v-if="markDelete" class="action-btn action-btn--delete" href="#" title="删除牌组" @click.prevent="markDelete">
           <font-awesome-icon icon="trash" />
         </a>
       </div>

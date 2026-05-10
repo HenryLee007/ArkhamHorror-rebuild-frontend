@@ -2,7 +2,7 @@
 import { watch, shallowRef, ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 import { fetchDeck, deleteDeck, fetchCards, syncDeck } from '@/arkham/api';
-import { imgsrc, localizeArkhamDBBaseUrl } from '@/arkham/helpers';
+import { imgsrc, localizeArkhamDBBaseUrl, isSyncableDeckUrl } from '@/arkham/helpers';
 import * as Arkham from '@/arkham/types/CardDef';
 import type {Deck} from '@/arkham/types/Deck';
 import * as DeckHelpers from '@/arkham/types/Deck';
@@ -144,6 +144,8 @@ const tabooList = computed(() => {
   return deck.value?.list.taboo_id ? displayTabooId(deck.value.list.taboo_id) : null
 })
 
+const canSyncDeck = computed(() => deck.value?.url ? isSyncableDeckUrl(deck.value.url) : false)
+
 watch(deckRef, (el) => {
   if (el !== null) {
     const observer = new IntersectionObserver(
@@ -180,7 +182,7 @@ watch(deckRef, (el) => {
             </div>
             <div class="deck-actions">
               <a v-if="deck.url" class="action-btn" :href="deckUrlToPage(deck.url)" target="_blank" rel="noreferrer noopener" title="View on ArkhamDB"><font-awesome-icon icon="external-link" /></a>
-              <a v-if="deck.url" class="action-btn" href="#" title="Sync deck" @click.prevent="sync"><font-awesome-icon icon="refresh" /></a>
+              <a v-if="deck.url && canSyncDeck" class="action-btn" href="#" title="Sync deck" @click.prevent="sync"><font-awesome-icon icon="refresh" /></a>
               <a class="action-btn action-btn--delete" href="#" title="Delete deck" @click.prevent="deleting = true"><font-awesome-icon icon="trash" /></a>
             </div>
           </div>
