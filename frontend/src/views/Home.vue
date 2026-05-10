@@ -67,7 +67,7 @@ const dismissNotification = (notification: AppNotification) => {
     <NewGame v-if="currentUser && newGame" @close="toggleNewGame">
       <template #cancel>
         <button @click="toggleNewGame" class="cancel-new-game-button">
-          <span>{{$t('cancel')}}</span>
+          <span>{{ $t('cancel') }}</span>
         </button>
       </template>
     </NewGame>
@@ -75,7 +75,7 @@ const dismissNotification = (notification: AppNotification) => {
     <div v-if="!newGame" class="home page-content">
       <div class="notification" v-for="notification in notifications" :key="notification.id">
         <p v-html="notification.body"></p>
-        <a @click.prevent="dismissNotification(notification)" href="#">{{$t('dismiss')}}</a>
+        <a @click.prevent="dismissNotification(notification)" href="#">{{ $t('home.dismiss') }}</a>
       </div>
 
       <div class="container">
@@ -85,7 +85,7 @@ const dismissNotification = (notification: AppNotification) => {
             <PrimaryButton :label="$t('newGame')" @click="toggleNewGame" />
           </header>
           <div v-if="activeGames.length === 0" class="box">
-            <p>{{$t('noActiveGames')}}</p>
+            <p>{{ $t('home.noActiveGames') }}</p>
           </div>
           <GameRow v-for="game in activeGames" :key="game.id" :game="game" :deleteGame="() => deleteGameEvent(game)" />
         </section>
@@ -97,7 +97,7 @@ const dismissNotification = (notification: AppNotification) => {
         </section>
         <section v-if="currentUser">
           <header>
-            <h2>{{$t('loadGame')}}</h2>
+            <h2>{{ $t('home.loadGame') }}</h2>
           </header>
           <ImportGame />
         </section>

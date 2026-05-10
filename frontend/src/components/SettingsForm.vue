@@ -31,7 +31,7 @@ const updateLanguage = async (a: Event) => {
 
       <section class="box column">
         <h3>{{$t('language')}}</h3>
-        <p>这会更改卡牌和应用的显示语言；如果所选语言缺少某张卡牌或某段文本，将默认显示英文。</p>
+        <p>{{ $t('settingsForm.languageHelp') }}</p>
         <select v-model="$i18n.locale" @change="updateLanguage">
           <option value="en">英语</option>
           <option value="zh">中文</option>
@@ -39,31 +39,31 @@ const updateLanguage = async (a: Event) => {
       </section>
 
       <section class="box column">
-        <h3>加入 Beta 测试</h3>
-        <p>Beta 功能可能很不稳定，游戏也可能无法恢复。只有在你愿意提供反馈时才建议开启。</p>
+        <h3>{{ $t('settingsForm.enrollInBeta') }}</h3>
+        <p>{{ $t('settingsForm.betaWarning') }}</p>
         <div class="row">
           <label class="radio-label">
             <input type="radio" name="beta" value="On" v-model="beta" @change="betaUpdate" />
-            开启
+            {{ $t('On') }}
           </label>
           <label class="radio-label">
             <input type="radio" name="beta" value="Off" v-model="beta" @change="betaUpdate" />
-            关闭
+            {{ $t('Off') }}
           </label>
         </div>
       </section>
 
       <section class="box column danger-zone">
-        <h3 class="danger-title">危险区域</h3>
-        <p>永久删除你的账号以及所有相关数据，包括游戏和牌组。<strong>此操作无法撤销。</strong></p>
+        <h3 class="danger-title">{{ $t('settingsForm.dangerZone') }}</h3>
+        <p>{{ $t('settingsForm.dangerZoneDescription') }} <strong>{{ $t('settingsForm.cannotBeUndone') }}</strong></p>
         <div v-if="!showDeleteConfirm">
-          <button class="btn-danger" @click="showDeleteConfirm = true">删除账号</button>
+          <button class="btn-danger" @click="showDeleteConfirm = true">{{ $t('settingsForm.deleteAccount') }}</button>
         </div>
         <div v-else class="column">
-          <p class="warning">你确定吗？你的所有游戏、牌组和账号数据都会永久丢失，且无法恢复。</p>
+          <p class="warning">{{ $t('settingsForm.deleteConfirm') }}</p>
           <div class="row">
-            <button class="btn-danger" @click="props.deleteAccount()">是的，永久删除我的账号</button>
-            <button @click="showDeleteConfirm = false">取消</button>
+            <button class="btn-danger" @click="props.deleteAccount()">{{ $t('settingsForm.confirmPermanentDelete') }}</button>
+            <button @click="showDeleteConfirm = false">{{ $t('cancel') }}</button>
           </div>
         </div>
       </section>

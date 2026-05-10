@@ -60,13 +60,13 @@ const canSync = computed(() => props.deck.url ? isSyncableDeckUrl(props.deck.url
         <span v-if="tabooList" class="taboo-badge"><font-awesome-icon icon="book" /> 禁卡表：{{ tabooList }}</span>
       </div>
       <div class="deck-actions" @click.stop>
-        <a v-if="deck.url" class="action-btn" :href="deckUrlToPage(deck.url)" target="_blank" rel="noreferrer noopener" title="在 ArkhamDB 查看">
+        <a v-if="deck.url" class="action-btn" :href="deckUrlToPage(deck.url)" target="_blank" rel="noreferrer noopener" :title="$t('deck.viewOnArkhamDb')">
           <font-awesome-icon icon="external-link" />
         </a>
-        <a v-if="deck.url && sync && canSync" class="action-btn" href="#" title="同步牌组" @click.prevent="sync">
+        <a v-if="deck.url && sync && canSync" class="action-btn" href="#" :title="$t('deck.syncDeck')" @click.prevent="sync">
           <font-awesome-icon icon="refresh" />
         </a>
-        <a v-if="markDelete" class="action-btn action-btn--delete" href="#" title="删除牌组" @click.prevent="markDelete">
+        <a v-if="markDelete" class="action-btn action-btn--delete" href="#" :title="$t('deck.deleteDeck')" @click.prevent="markDelete">
           <font-awesome-icon icon="trash" />
         </a>
       </div>

@@ -23,6 +23,7 @@ import Arkham.Helpers.Window (getThatEnemy, windowMatches)
 import Arkham.Id
 import Arkham.Investigator.Types (Field (..))
 import Arkham.Matcher qualified as Matcher
+import Arkham.Metrics qualified as Metrics
 import Arkham.Modifier
 import Arkham.Prelude
 import Arkham.Projection
@@ -58,12 +59,17 @@ getCanPerformAbility !iid !ws !ability = do
   runValidT do
     when ability.skipForAll do
       liftGuardM $ selectNone Matcher.InvestigatorSkippedWindow
+    -- Order matters: cheap filters first. windowMatches (~21µs) and
+    -- preventedByInvestigatorModifiers (~16µs) prune the vast majority of
+    -- abilities for any given check; meetsActionRestrictions (~2ms) and
+    -- passesCriteria (~15ms) are 90×–700× more expensive per call, so we
+    -- only evaluate them on the survivors.
+    liftGuardM $ anyM (\window -> windowMatches iid (toSource ability) window abWindow) ws
+    liftGuardM $ not <$> preventedByInvestigatorModifiers iid ability
     liftGuardM $ getCanAffordAbility iid ability ws
     liftGuardM $ meetsActionRestrictions iid ws ability
-    liftGuardM $ anyM (\window -> windowMatches iid (toSource ability) window abWindow) ws
     liftGuardM $ withActiveInvestigator iid do
       passesCriteria iid Nothing (toSource ability) ability.requestor ws criteria
-    liftGuardM $ not <$> preventedByInvestigatorModifiers iid ability
 
 preventedByInvestigatorModifiers
   :: (Tracing m, HasGame m) => InvestigatorId -> Ability -> m Bool
@@ -139,7 +145,10 @@ meetsActionRestrictions iid _ ab@Ability {..} = withSpan_ "meetsActionRestrictio
     ConstantAbility -> pure False
 
 canDoAction :: (HasCallStack, Tracing m, HasGame m) => InvestigatorId -> Ability -> Action -> m Bool
-canDoAction iid ab@Ability {abilitySource, abilityIndex, abilityCardCode} = \case
+canDoAction iid ab a = withSpan_ ("canDoAction/" <> Metrics.messageTag a) $ canDoAction' iid ab a
+
+canDoAction' :: (HasCallStack, Tracing m, HasGame m) => InvestigatorId -> Ability -> Action -> m Bool
+canDoAction' iid ab@Ability {abilitySource, abilityIndex, abilityCardCode} = \case
   Action.Fight -> case abilitySource of
     LocationSource _lid -> pure True
     ConcealedCardSource _ -> pure True

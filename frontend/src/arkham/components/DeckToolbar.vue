@@ -1,30 +1,38 @@
 <script lang="ts" setup>
 import { capitalize } from '@/arkham/helpers'
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
-withDefaults(defineProps<{
+const { t } = useI18n()
+
+const props = withDefaults(defineProps<{
   compact?: boolean
   searchPlaceholder?: string
-}>(), { compact: false, searchPlaceholder: '搜索牌组…' })
+}>(), { compact: false, searchPlaceholder: '' })
 
-const allClasses = ["guardian", "seeker", "rogue", "mystic", "survivor", "neutral"]
-const classLabels: Record<string, string> = {
+const effectivePlaceholder = computed(() => props.searchPlaceholder || t('deckToolbar.searchDecks'))
+
+type DeckClass = 'guardian' | 'seeker' | 'rogue' | 'mystic' | 'survivor' | 'neutral'
+
+const allClasses: DeckClass[] = ["guardian", "seeker", "rogue", "mystic", "survivor", "neutral"]
+const classLabels: Record<DeckClass, string> = {
   guardian: '守卫者',
   seeker: '探求者',
   rogue: '流浪者',
   mystic: '潜修者',
   survivor: '求生者',
-  neutral: 'Neutral',
+  neutral: '中立',
 }
 
 const search = defineModel<string>('search', { default: '' })
 const filterClasses = defineModel<string[]>('filterClasses', { default: () => [] })
 const sortBy = defineModel<'name' | 'class'>('sortBy', { default: 'name' })
 
-function classLabel(c: string) {
+function classLabel(c: DeckClass) {
   return classLabels[c] ?? capitalize(c)
 }
 
-function toggleClass(c: string) {
+function toggleClass(c: DeckClass) {
   const idx = filterClasses.value.indexOf(c)
   filterClasses.value = idx === -1
     ? [...filterClasses.value, c]
@@ -51,12 +59,12 @@ function toggleClass(c: string) {
       <input
         v-model="search"
         class="search-input"
-        :placeholder="searchPlaceholder"
+        :placeholder="effectivePlaceholder"
         type="search"
       />
       <select v-model="sortBy" class="sort-select">
-        <option value="name">排序：名称</option>
-        <option value="class">排序：职业</option>
+        <option value="name">{{ t('deckToolbar.sortName') }}</option>
+        <option value="class">{{ t('deckToolbar.sortClass') }}</option>
       </select>
     </div>
   </div>

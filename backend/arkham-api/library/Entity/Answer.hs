@@ -24,6 +24,7 @@ import Arkham.Message
 import Arkham.Source
 import Arkham.Target
 import Arkham.Token
+import Arkham.Window qualified as Window
 import Control.Exception (evaluate, try)
 import Data.Aeson
 import Data.Map.Strict qualified as Map
@@ -343,7 +344,18 @@ handleAnswerPure Game {..} playerId = \case
     let campaignLog' = makeCampaignLog settings'
     handled [SetCampaignLog campaignLog']
   CampaignSpecificAnswer k v -> do
-    handled [CampaignSpecific k v]
+    let
+      unwrap = \case
+        QuestionLabel _ _ q' -> unwrap q'
+        PayCostQuestion _ q' -> unwrap q'
+        q' -> q'
+    case unwrap <$> Map.lookup playerId gameQuestion of
+      Just (PickCampaignSpecific {}) -> do
+        let question' = Map.delete playerId gameQuestion
+        handled
+          $ CampaignSpecific k v
+          : [AskMap question' | not (Map.null question')]
+      _ -> unhandled "Wrong question type"
   CampaignStepAnswer k -> do
     case gameMode of
       This c -> case c.step of
@@ -388,6 +400,16 @@ handleAnswerPure Game {..} playerId = \case
     case parQuestionVersion response of
       Just v | v /= gameScenarioSteps -> unhandled "Stale question"
       _ -> case Map.lookup playerId gameQuestion of
+        Just (PayCostQuestion _ (ChoosePaymentAmounts _ _ info)) -> do
+          let costMap = Map.fromList $ map (\(PaymentAmountChoice cId _ _ _ _ cost) -> (cId, cost)) info
+          let
+            combinePaymentAmounts n = \case
+              PayCost acId iid skip (UseCost aMatcher uType m) -> [PayCost acId iid skip (UseCost aMatcher uType (n * m))]
+              PayCost acId iid skip (ResourceCost _) | n == 0 -> [PayCost acId iid skip (ResourceCost 0)]
+              PayCost acId iid skip other -> [PayCost acId iid skip (fold $ replicate n other)]
+              payMsg -> replicate n payMsg
+          let handleCost (cId, n) = combinePaymentAmounts n $ Map.findWithDefault Noop cId costMap
+          handled $ concatMap handleCost $ Map.toList (parAmounts response)
         Just (ChoosePaymentAmounts _ _ info) -> do
           let costMap = Map.fromList $ map (\(PaymentAmountChoice cId _ _ _ _ cost) -> (cId, cost)) info
           let
@@ -403,11 +425,21 @@ handleAnswerPure Game {..} playerId = \case
     let isPlayerWindowChoose = \case
           PlayerWindowChooseOne _ -> True
           _ -> False
+    let inFastWindow =
+          maybe
+            False
+            (any (any (\w -> Window.windowType w == Window.FastPlayerWindow)))
+            gameWindowStack
     if not (Map.null gameQuestion) && not (any isPlayerWindowChoose $ toList gameQuestion)
       then case message of
         PassSkillTest -> handled [message]
         FailSkillTest -> handled [message]
         ForceChaosTokenDraw _ -> handled [message]
+        -- Settings updates regenerate the pending question themselves when a
+        -- fast player window is open (UpdateGlobalSetting re-runs runWindow);
+        -- skip the stale AskMap so it doesn't clobber the regenerated one.
+        UpdateGlobalSetting {} | inFastWindow -> handled [message]
+        UpdateCardSetting {} | inFastWindow -> handled [message]
         _ -> handled [message, AskMap gameQuestion]
       else handled [message]
   Answer response ->
@@ -431,6 +463,7 @@ handleAnswerPure Game {..} playerId = \case
     -> [Message]
   go f q response = case q of
     QuestionLabel lbl mCard q' -> go (QuestionLabel lbl mCard) q' response
+    PayCostQuestion cost q' -> go (PayCostQuestion cost) q' response
     Read t (BasicReadChoices qs) mcs -> case qs !!? qrChoice response of
       Nothing -> [Ask playerId $ f $ Read t (BasicReadChoices qs) mcs]
       Just msg -> [uiToRun msg]

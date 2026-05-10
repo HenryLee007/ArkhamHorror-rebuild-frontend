@@ -5,6 +5,7 @@ import Arkham.Location.Cards qualified as Cards
 import Arkham.Location.Helpers (resignAction)
 import Arkham.Location.Import.Lifted
 import Arkham.Matcher
+import Arkham.Scenarios.InTooDeep.Helpers
 
 newtype RailroadStation = RailroadStation LocationAttrs
   deriving anyclass (IsLocation, HasModifiersFor)
@@ -18,7 +19,7 @@ instance HasAbilities RailroadStation where
     extendRevealed
       attrs
       [ skillTestAbility $ mkAbility attrs 1 $ forced $ Enters #after You (be attrs <> FloodedLocation)
-      , withTooltip "You escape the submerged town" $ resignAction attrs
+      , scenarioI18n $ withI18nTooltip "railroadStation.resign" $ resignAction attrs
       ]
 
 instance RunMessage RailroadStation where

@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { computed, watch, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import {imgsrc} from '@/arkham/helpers';
 import { fetchInvestigators, newDeck, validateDeck } from '@/arkham/api'
 import ArkhamDbDeck from '@/arkham/components/ArkhamDbDeck.vue';
 import { ArkhamDbDecklist } from '@/arkham/types/Deck';
 import { useCardStore } from '@/stores/cards'
+
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
   noPortrait?: boolean
@@ -185,21 +188,21 @@ async function createDeck() {
         <input v-if="investigator" v-model="deckName" />
         <div v-if="!alwaysSave" class="save-option" :class="{ active: saveDeck }" @click="saveDeckToggle = !saveDeckToggle" role="checkbox" :aria-checked="saveDeck">
           <div class="save-option-body">
-            <span class="save-option-title">保存到牌组列表</span>
-            <span class="save-option-desc">保留此牌组供后续战役使用</span>
+            <span class="save-option-title">{{ $t('deckList.saveToDeckList') }}</span>
+            <span class="save-option-desc">{{ $t('deckList.saveToDeckListDescription') }}</span>
           </div>
           <div class="save-option-toggle" :class="{ on: saveDeck }">
             <div class="save-option-thumb" />
           </div>
         </div>
-        <button :disabled="!valid" @click.prevent="createDeck" class="primary-action">{{ alwaysSave ? '保存' : saveDeck ? '保存并使用' : '不保存直接使用' }}</button>
+        <button :disabled="!valid" @click.prevent="createDeck" class="primary-action">{{ alwaysSave ? t('newDeck.save') : saveDeck ? t('newDeck.saveAndUse') : t('newDeck.useWithoutSaving') }}</button>
       </div>
     </div>
     <div class="errors" v-if="investigatorError">
       {{investigatorError}}
     </div>
     <div class="errors" v-if="errors.length > 0">
-      <p>无法创建牌组，以下卡牌尚未实现：</p>
+      <p>{{ t('newDeck.unimplementedError') }}</p>
       <ul>
         <li class="error" v-for="(error, idx) in errors" :key="idx">
           {{error}}
