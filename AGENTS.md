@@ -10,6 +10,7 @@
 1. **先定位，后动手。**
    - 接到任务先在 [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) 第 6 节「常见问题 → 代码位置映射」查起点。
    - 读完起点文件再决定是否继续外扩，不先读就改。
+   - 做源仓库规则引擎同步时，优先使用项目内 skill：[.agents/skills/sync-arkham-upstream/SKILL.md](./.agents/skills/sync-arkham-upstream/SKILL.md)。
 2. **一次任务、一次最小改动。**
    - 不要为「顺手优化」修改无关文件。
    - 不要重构目录、重命名、大规模格式化。
@@ -69,6 +70,7 @@
 
 ### 前端
 - 类型检查：`cd frontend; npm run tc`
+  - 源仓库同步任务例外：`upstream/main` 与本仓 `dev` 当前均存在既有 `tc` 错误。同步时按 `.agents/skills/sync-arkham-upstream/scripts/compare-tc-baselines.sh` 做基线对比，只把同步分支新增且属于本仓改动的错误作为阻塞项。
 - 构建：`cd frontend; npm run build`
 - Dev 服务器自测：`npm run dev`（vite 8080，代理 → 3002）
 - **热更新到运行中的容器**（Windows Docker 开发场景首选）：
@@ -101,7 +103,7 @@
 一个改动可以声明完成，当且仅当：
 
 1. **功能点满足**原始需求，且只改了必要文件。
-2. **类型/编译通过**：前端 `npm run tc && npm run build` 无错；后端 `stack build` 无错。
+2. **类型/编译通过**：普通改动要求前端 `npm run tc && npm run build` 无错、后端 `stack build` 无错；源仓库同步任务按项目内 skill 做 `tc` 基线对比，`npm run build`、后端编译和 Docker 冒烟仍是硬门禁。
 3. **相关测试通过**：受影响模块至少跑一次 `stack test` 或相关 spec。
 4. **跨层契约一致**：路由 / Entity / 解码器 / Store / 组件 四处没有断点。
 5. **无意外 diff**：`git status` 只包含与任务相关的文件；锁文件未改；生成文件未手改。
